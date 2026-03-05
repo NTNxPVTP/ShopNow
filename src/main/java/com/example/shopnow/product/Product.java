@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Product {
     @Id
     @GeneratedValue
-    private Integer id;
+    private Integer idProduct;
     private Integer shop_id;
     private String name;
     private String picture_url;
