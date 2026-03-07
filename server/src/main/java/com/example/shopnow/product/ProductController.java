@@ -13,9 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ProductController {
     private final  ProductService productService;
     
-    @GetMapping("/viewProductDetail/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Product> viewDetailsOfProduct(@PathVariable Integer id) {
         Product product = productService.viewDetailsOfProduct(id);
         return ResponseEntity.ok(product);
+    }
+
+    @PostMapping
+    public ResponseEntity<ProductDetail> createProduct(@RequestBody CreateProductRequest request){
+        ProductDetail detail = productService.createProduct(request);
+        return ResponseEntity.ok(detail);
     }
 }
