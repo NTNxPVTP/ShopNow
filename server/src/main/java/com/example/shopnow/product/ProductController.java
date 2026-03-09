@@ -19,9 +19,9 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
-    @PostMapping
-    public ResponseEntity<ProductDetail> createProduct(@RequestBody CreateProductRequest request){
-        ProductDetail detail = productService.createProduct(request);
-        return ResponseEntity.ok(detail);
-    }
+    // @PostMapping
+    // public ResponseEntity<ProductDetail> createProduct(@RequestBody CreateProductRequest request){
+    //     ProductDetail detail = productService.createProduct(request);
+    //     return ResponseEntity.ok(detail);
+    // }
 }
