@@ -8,3 +8,4 @@ import java.util.UUID;
 public interface ProductRepository extends JpaRepository<Product, Integer > {
     public Product findByIdProduct(Integer idProduct);
 }
+    
