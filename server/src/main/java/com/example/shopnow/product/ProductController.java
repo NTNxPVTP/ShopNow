@@ -1,6 +1,4 @@
 package com.example.shopnow.product;
-
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;

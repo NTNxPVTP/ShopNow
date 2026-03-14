@@ -1,5 +1,9 @@
 package com.example.shopnow.product;
 
+import java.util.UUID;
+
+import org.springframework.data.mapping.model.BasicPersistentEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -14,8 +18,8 @@ import lombok.NoArgsConstructor;
 public class Product {
     @Id
     @GeneratedValue
-    private Integer idProduct;
-    private Integer shop_id;
+    private UUID id;
+    private UUID shop_id;
     private String name;
     private String picture_url;
     private Integer quantity;
