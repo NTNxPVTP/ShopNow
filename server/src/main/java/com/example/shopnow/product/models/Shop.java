@@ -1,10 +1,9 @@
-package com.example.shopnow.product.seller.domain.models;
+package com.example.shopnow.product.models;
 
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import com.example.shopnow.shared.BaseEntity;
 
 import jakarta.persistence.Entity;
