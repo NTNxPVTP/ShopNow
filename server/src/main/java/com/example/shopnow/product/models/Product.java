@@ -1,4 +1,4 @@
-package com.example.shopnow.product.seller.domain.models;
+package com.example.shopnow.product.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,7 +34,7 @@ public class Product extends BaseEntity{
     private BigDecimal price;
     private ProductStatus status;
     
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "products")
     private List<Category> categories;
     
     @CreatedDate

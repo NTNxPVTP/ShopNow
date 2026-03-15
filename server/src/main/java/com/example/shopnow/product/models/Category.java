@@ -1,8 +1,9 @@
-package com.example.shopnow.product.seller.domain.models;
+package com.example.shopnow.product.models;
 
 import java.util.List;
 
 import com.example.shopnow.shared.BaseEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
