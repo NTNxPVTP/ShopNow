@@ -37,4 +37,15 @@ public class ProductService {
         ProductDetailResponse detail = mapper.toDetailResponse(product);
         return detail;
     }
+
+    //has not check permission shop owner
+    @Transactional
+    public String deleteProduct(UUID id){
+        System.out.println("here");
+        int check = productRepository.deleteProductById(id);
+        if(check == 0){
+            throw new DomainException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+        return "Delete product successfully!";
+    }
 }
