@@ -1,8 +1,9 @@
-package com.example.shopnow.product.seller.domain;
+// package com.example.shopnow.product.seller.domain;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+// import org.springframework.stereotype.Service;
+// import org.springframework.transaction.annotation.Transactional;
 
+<<<<<<< Updated upstream
 import com.example.shopnow.product.models.Product;
 import com.example.shopnow.product.seller.rest.dto.ProductDetailResponse;
 import com.example.shopnow.shared.DomainException;
@@ -23,3 +24,15 @@ public class ProductSellerService {
         return mapper.toDetailResponse(product);
     }
 }
+=======
+// import lombok.RequiredArgsConstructor;
+
+// @Service
+// @RequiredArgsConstructor
+// @Transactional(readOnly = true)
+// public class ProductSellerService {
+//     private final ProductSellerRepository repository;
+
+//     public
+// }
+>>>>>>> Stashed changes
