@@ -18,7 +18,6 @@ class ProductMapper {
             product.getStatus());
     }
     public Product fromRequestToProduct(CreateProductRequest request){
-        System.out.println(request);
         return Product.builder()
                     .name(request.name())
                     .pictureUrl(request.pictureUrl())

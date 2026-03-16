@@ -28,9 +28,6 @@ public class ProductService {
     //has not have shop owner, category,... yet
     @Transactional
     public ProductDetailResponse createProduct(CreateProductRequest request){
-        System.out.println("This is a request");
-        System.out.println(request);
-        
         Product product = mapper.fromRequestToProduct(request);
         product.setStatus(ProductStatus.ACTIVE);
         product = productRepository.save(product);
@@ -41,11 +38,19 @@ public class ProductService {
     //has not check permission shop owner
     @Transactional
     public String deleteProduct(UUID id){
-        System.out.println("here");
         int check = productRepository.deleteProductById(id);
         if(check == 0){
             throw new DomainException(ErrorCode.PRODUCT_NOT_FOUND);
         }
         return "Delete product successfully!";
     }
+
+    //has not check permission
+    // @Transactional
+    // public String updateProduct(UpdateProductRequest request){
+    //     Product product = findProduct;
+    //     mapper.updateProductFromUpdateRequest(request, product);
+    //     productRepository.save(product);
+    //     return mapper.toDetailResponse(product);
+    // }
 }
