@@ -1,4 +1,4 @@
-package com.example.shopnow.product.seller.rest.dto;
+package com.example.shopnow.product.rest.dto;
 
 import java.math.BigDecimal;
 import java.util.UUID;
