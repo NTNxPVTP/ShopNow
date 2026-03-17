@@ -7,7 +7,7 @@ import com.example.shopnow.product.models.ProductStatus;
 public record ProductDetailResponse(
     UUID id,
     String name,
-    String picture_url,
+    String pictureUrl,
     Integer quantity,
     BigDecimal price,
     ProductStatus status
