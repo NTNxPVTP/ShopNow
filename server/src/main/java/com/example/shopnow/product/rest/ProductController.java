@@ -10,6 +10,7 @@ import com.example.shopnow.product.ProductService;
 import com.example.shopnow.product.models.Product;
 import com.example.shopnow.product.rest.dto.CreateProductRequest;
 import com.example.shopnow.product.rest.dto.ProductDetailResponse;
+import com.example.shopnow.product.rest.dto.UpdateProductRequest;
 
 import jakarta.validation.Valid;
 
@@ -36,4 +37,11 @@ public class ProductController {
         return ResponseEntity.ok( productService.deleteProduct(id));
     }
     
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProductDetailResponse> updateProduct(
+        @PathVariable UUID id,
+        @RequestBody UpdateProductRequest request
+    ){
+        return ResponseEntity.ok(productService.updateProduct(request, id));
+    }
 }
