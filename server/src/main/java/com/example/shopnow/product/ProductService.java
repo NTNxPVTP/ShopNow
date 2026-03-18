@@ -54,18 +54,13 @@ public class ProductService {
     public ProductDetailResponse updateProduct(UpdateProductRequest request, UUID produdctId) {
         Product product = productRepository.findById(produdctId)
                 .orElseThrow(() -> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
-        System.out.println("before mapping:");
-        System.out.println(product);
-
         mapper.updateProductFromUpdateRequest(request, product);
-        System.out.println("after mapping:");
-        System.out.println(product);
         productRepository.save(product);
         return mapper.toDto(product);
     }
 
-    //has not find by categories, or any other field...
-    public PageResponse<ProductDetailResponse> getProducts(Pageable pageable){
+    // has not find by categories, or any other field..., has not turn into ProductSummary
+    public PageResponse<ProductDetailResponse> getProducts(Pageable pageable) {
         Page<Product> products = productRepository.findWithPageReponseBy(pageable);
         return mapper.toPageResponse(products);
     }
