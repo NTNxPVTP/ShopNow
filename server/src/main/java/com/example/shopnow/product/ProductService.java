@@ -1,6 +1,8 @@
 package com.example.shopnow.product;
 
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.shopnow.product.models.Product;
@@ -10,6 +12,7 @@ import com.example.shopnow.product.rest.dto.ProductDetailResponse;
 import com.example.shopnow.product.rest.dto.UpdateProductRequest;
 import com.example.shopnow.shared.DomainException;
 import com.example.shopnow.shared.ErrorCode;
+import com.example.shopnow.shared.PageResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,7 +27,6 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
         return product;
-
     }
 
     // has not have shop owner, category,... yet
@@ -33,7 +35,7 @@ public class ProductService {
         Product product = mapper.fromCreateRequestToProduct(request);
         product.setStatus(ProductStatus.ACTIVE);
         product = productRepository.save(product);
-        ProductDetailResponse detail = mapper.toDetail(product);
+        ProductDetailResponse detail = mapper.toDto(product);
         return detail;
     }
 
@@ -59,6 +61,12 @@ public class ProductService {
         System.out.println("after mapping:");
         System.out.println(product);
         productRepository.save(product);
-        return mapper.toDetail(product);
+        return mapper.toDto(product);
+    }
+
+    //has not find by categories, or any other field...
+    public PageResponse<ProductDetailResponse> getProducts(Pageable pageable){
+        Page<Product> products = productRepository.findWithPageReponseBy(pageable);
+        return mapper.toPageResponse(products);
     }
 }
