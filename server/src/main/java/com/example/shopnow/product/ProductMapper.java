@@ -10,10 +10,10 @@ import com.example.shopnow.product.models.Product;
 import com.example.shopnow.product.rest.dto.CreateProductRequest;
 import com.example.shopnow.product.rest.dto.ProductDetailResponse;
 import com.example.shopnow.product.rest.dto.UpdateProductRequest;
+import com.example.shopnow.shared.GenericMapper;
 
 @Mapper(componentModel = "spring")
-interface ProductMapper {
-    ProductDetailResponse toDetail(Product product);
+interface ProductMapper extends GenericMapper<Product, ProductDetailResponse>{
     
     @Mapping(target = "shop", ignore = true)
     @Mapping(target = "status", ignore = true)
