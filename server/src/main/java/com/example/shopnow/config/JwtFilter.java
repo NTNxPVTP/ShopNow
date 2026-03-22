@@ -54,13 +54,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     }   
                 }
-
-                if(userName!=null&authHeader.startsWith("Bearer")){
-                    var isTokenValid = tokenRepository.findByToken(token)
-                            .map(t->!t.isExpired()&&!t.isRevoked())
-                            .orElse(false);
-
-                }
+                filterChain.doFilter(request, response);
         throw new UnsupportedOperationException("Unimplemented method 'doFilterInternal'");
     }
 
