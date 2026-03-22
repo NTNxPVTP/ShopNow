@@ -1,17 +1,19 @@
 package com.example.shopnow.product;
 
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.example.shopnow.exception.DomainException;
+import com.example.shopnow.exception.ErrorCode;
 import com.example.shopnow.product.models.Product;
 import com.example.shopnow.product.models.ProductStatus;
 import com.example.shopnow.product.rest.dto.CreateProductRequest;
 import com.example.shopnow.product.rest.dto.ProductDetailResponse;
 import com.example.shopnow.product.rest.dto.UpdateProductRequest;
-import com.example.shopnow.shared.DomainException;
-import com.example.shopnow.shared.ErrorCode;
 import com.example.shopnow.shared.PageResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -63,5 +65,9 @@ public class ProductService {
     public PageResponse<ProductDetailResponse> getProducts(Pageable pageable) {
         Page<Product> products = productRepository.findWithPageReponseBy(pageable);
         return mapper.toPageResponse(products);
+    }
+
+    public List<Product> findAllByIdIn(List<UUID> ids){
+        return productRepository.findAllByIdIn(ids);
     }
 }

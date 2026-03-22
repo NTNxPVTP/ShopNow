@@ -1,4 +1,4 @@
-package com.example.shopnow.configuration;
+package com.example.shopnow.exception;
 
 import java.time.Instant;
 
@@ -7,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import com.example.shopnow.shared.DomainException;
-import com.example.shopnow.shared.ErrorCode;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
