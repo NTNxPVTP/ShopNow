@@ -1,4 +1,4 @@
-package com.example.shopnow.shared;
+package com.example.shopnow.exception;
 
 import org.springframework.http.HttpStatus;
 
