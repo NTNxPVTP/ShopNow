@@ -2,8 +2,11 @@ package com.example.shopnow.config;
 
 import com.example.shopnow.shared.TokenType;
 import com.example.shopnow.user.TokenRepository;
+import com.example.shopnow.user.models.Token;
 
 import lombok.RequiredArgsConstructor;
+import lombok.var;
+
 import org.springframework.beans.factory.annotation.Value;
 
 import java.security.Key;
@@ -12,6 +15,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -36,10 +40,6 @@ public class JwtService {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long jwtRefreshExpiration;
     private String secretKey;
-
-    JwtService(TokenRepository tokenRepository) {
-        this.tokenRepository = tokenRepository;
-    }
 
     @PostConstruct
     public void genKey(){
@@ -112,12 +112,10 @@ public class JwtService {
         return isTokenvalid(token, userDetails, TokenType.ACCESS_TOKEN);
     }
 
-    private boolean isTokenvalid(String token, UserDetails userDetails, String string) {
+    private boolean isTokenvalid(String token, UserDetails userDetails, TokenType tokenType) {
         if(token == null){
             return false;
         }
-        
-        // check exist, tokenType, expired and revoked in database
         var tokenDB = tokenRepository.findByToken(token).orElse(null);
         if (tokenDB == null || tokenDB.isExpired() || tokenDB.isRevoked() && tokenDB.getTokenType() == tokenType) {
             return false;
