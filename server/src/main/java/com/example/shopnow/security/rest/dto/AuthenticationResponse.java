@@ -1,4 +1,4 @@
-package com.example.shopnow.user.models;
+package com.example.shopnow.security.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
