@@ -1,12 +1,13 @@
-package com.example.shopnow.user;
+package com.example.shopnow.security;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import com.example.shopnow.config.JwtService;
-import com.example.shopnow.user.models.AuthenticationRequest;
-import com.example.shopnow.user.models.AuthenticationResponse;
+import com.example.shopnow.security.rest.dto.AuthenticationRequest;
+import com.example.shopnow.security.rest.dto.AuthenticationResponse;
+import com.example.shopnow.user.UserRepository;
+import com.example.shopnow.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class AuthenticationService {
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final TokenService tokenService;
@@ -22,12 +23,12 @@ public class AuthenticationService {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        var user = userRepository.findByEmail(request.email()).orElseThrow();
+        var user = userService.findByEmail(request.email()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         tokenService.revokeAllUserTokens(user);
         tokenService.saveUserTokens(user, jwtToken, refreshToken);
-        return AuthenticationResponse 
+        return AuthenticationResponse
                         .builder()
                         .accessToken(jwtToken)
                         .refreshToken(refreshToken)
