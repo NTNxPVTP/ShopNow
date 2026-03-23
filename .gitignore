@@ -31,4 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
-/server/.env
+server/.env
