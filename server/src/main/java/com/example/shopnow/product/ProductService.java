@@ -13,6 +13,7 @@ import com.example.shopnow.product.rest.dto.UpdateProductRequest;
 import com.example.shopnow.shared.DomainException;
 import com.example.shopnow.shared.ErrorCode;
 import com.example.shopnow.shared.PageResponse;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,21 +22,21 @@ import lombok.RequiredArgsConstructor;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductMapper mapper;
+    private final ProductMapper productMapper;
+    public ProductDetailResponse viewDetailsOfProduct(UUID id) {
 
-    public Product viewDetailsOfProduct(UUID id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
-        return product;
+                .orElseThrow(()-> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
+        return productMapper.toDto(product);
     }
 
     // has not have shop owner, category,... yet
     @Transactional
     public ProductDetailResponse createProduct(CreateProductRequest request) {
-        Product product = mapper.fromCreateRequestToProduct(request);
+        Product product = productMapper.fromCreateRequestToProduct(request);
         product.setStatus(ProductStatus.ACTIVE);
         product = productRepository.save(product);
-        ProductDetailResponse detail = mapper.toDto(product);
+        ProductDetailResponse detail = productMapper.toDto(product);
         return detail;
     }
 
@@ -54,14 +55,14 @@ public class ProductService {
     public ProductDetailResponse updateProduct(UpdateProductRequest request, UUID produdctId) {
         Product product = productRepository.findById(produdctId)
                 .orElseThrow(() -> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
-        mapper.updateProductFromUpdateRequest(request, product);
+        productMapper.updateProductFromUpdateRequest(request, product);
         productRepository.save(product);
-        return mapper.toDto(product);
+        return productMapper.toDto(product);
     }
 
     // has not find by categories, or any other field..., has not turn into ProductSummary
     public PageResponse<ProductDetailResponse> getProducts(Pageable pageable) {
         Page<Product> products = productRepository.findWithPageReponseBy(pageable);
-        return mapper.toPageResponse(products);
+        return productMapper.toPageResponse(products);
     }
 }
