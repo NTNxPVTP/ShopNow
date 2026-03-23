@@ -1,7 +1,7 @@
-CREATE TYPE user_role AS ENUM ('seller', 'customer', 'admin');
-CREATE TYPE product_status AS ENUM ('active', 'sold');
-CREATE TYPE order_status AS ENUM ('in_process', 'delivering', 'paid');
-CREATE TYPE payment_status AS ENUM ('not_paid', 'paid');
+CREATE TYPE user_role AS ENUM ('SELLER', 'CUSTOMER', 'ADMIN');
+CREATE TYPE product_status AS ENUM ('ACTIVE', 'SOLD');
+CREATE TYPE order_status AS ENUM ('IN_PROCESS', 'DELIVERING', 'PAID');
+CREATE TYPE payment_status AS ENUM ('NOT_PAID', 'PAID');
 
 -- 1. Users
 CREATE TABLE users (
@@ -9,7 +9,7 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role user_role DEFAULT 'customer',
+    role user_role DEFAULT 'CUSTOMER',
     avatar_url TEXT,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -51,7 +51,7 @@ CREATE TABLE products (
     picture_url TEXT,
     quantity INTEGER DEFAULT 0,
     price DECIMAL(12, 2) NOT NULL,
-    status product_status DEFAULT 'active',
+    status product_status DEFAULT 'ACTIVE',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -96,7 +96,7 @@ CREATE TABLE cart_product (
 CREATE TABLE orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id UUID REFERENCES users(id),
-    status order_status DEFAULT 'in_process',
+    status order_status DEFAULT 'IN_PROCESS',
     total_price DECIMAL(12, 2) NOT NULL,
     address_shipping TEXT NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
@@ -125,7 +125,7 @@ CREATE TABLE payments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
     payment_method_id UUID REFERENCES payment_method(id),
-    status payment_status DEFAULT 'not_paid',
+    status payment_status DEFAULT 'NOT_PAID',
     amount DECIMAL(12, 2) NOT NULL,
     transaction_id VARCHAR(255),
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP

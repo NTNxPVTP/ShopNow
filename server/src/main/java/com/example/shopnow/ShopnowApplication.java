@@ -22,11 +22,6 @@ public class ShopnowApplication {
 		return args -> {
 			System.out.println("========== DEBUG ENVIRONMENT VARIABLES ==========");
 			System.out.println(env.toString());
-			// System.out.println("DB_USERNAME: " + env.getProperty("DB_USERNAME"));
-			// // Lưu ý: Đừng log password ở môi trường thực tế (Production)
-			// System.out.println("DB_PASSWORD: " + (env.getProperty("DB_PASSWORD") != null
-			// ? "FOUND" : "NOT FOUND"));
-			// System.out.println("================================================");
 		};
 	}
 

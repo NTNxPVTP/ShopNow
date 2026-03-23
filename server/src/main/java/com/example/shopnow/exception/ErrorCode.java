@@ -1,4 +1,4 @@
-package com.example.shopnow.shared;
+package com.example.shopnow.exception;
 
 import org.springframework.http.HttpStatus;
 
@@ -10,6 +10,9 @@ import lombok.Getter;
 public enum ErrorCode {
     // Product Errors
     PRODUCT_NOT_FOUND("PRODUCT_001", "Product Not Found", "The requested product does not exist", HttpStatus.NOT_FOUND),
+
+    // Order Errors
+    ORDER_NOT_FOUND("ORDER_001", "Order Not Found", "The requested order does not exist", HttpStatus.NOT_FOUND),
 
     // Generic Erors
     UNCATEGORIZED_EXCEPTION("9999", "Uncategorized Error", "An unexpected error occurred",

@@ -1,19 +1,25 @@
 package com.example.shopnow.product;
 
+import java.util.List;
 import java.util.UUID;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.shopnow.exception.DomainException;
+import com.example.shopnow.exception.ErrorCode;
 import com.example.shopnow.product.models.Product;
+import com.example.shopnow.product.models.ProductStatus;
+import com.example.shopnow.product.rest.dto.CreateProductRequest;
 import com.example.shopnow.product.rest.dto.ProductDetailResponse;
-import com.example.shopnow.shared.DomainException;
-import com.example.shopnow.shared.ErrorCode;
+import com.example.shopnow.product.rest.dto.UpdateProductRequest;
+import com.example.shopnow.shared.PageResponse;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional( readOnly= true, rollbackFor = Exception.class)
+@Transactional(readOnly = true, rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class ProductService {
 
@@ -23,13 +29,46 @@ public class ProductService {
 
         Product product = productRepository.findById(id)
                 .orElseThrow(()-> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
-        return productMapper.toDetailResponse(product);
+        return productMapper.toDto(product);
     }
 
-    // public ProductDetail createProduct(CreateProductRequest request){
-    //     Product product = ProductMapper.fromRequestToProduct(request);
-    //     product = productRepository.save(product);
-    //     ProductDetail detail = ProductMapper.toDetail(product);
-    //     return detail;
-    // }
+    // has not have shop owner, category,... yet
+    @Transactional
+    public ProductDetailResponse createProduct(CreateProductRequest request) {
+        Product product = productMapper.fromCreateRequestToProduct(request);
+        product.setStatus(ProductStatus.ACTIVE);
+        product = productRepository.save(product);
+        ProductDetailResponse detail = productMapper.toDto(product);
+        return detail;
+    }
+
+    // has not check permission shop owner
+    @Transactional
+    public String deleteProduct(UUID id) {
+        int check = productRepository.deleteProductById(id);
+        if (check == 0) {
+            throw new DomainException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+        return "Delete product successfully!";
+    }
+
+    // has not check permission
+    @Transactional
+    public ProductDetailResponse updateProduct(UpdateProductRequest request, UUID produdctId) {
+        Product product = productRepository.findById(produdctId)
+                .orElseThrow(() -> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
+        productMapper.updateProductFromUpdateRequest(request, product);
+        productRepository.save(product);
+        return productMapper.toDto(product);
+    }
+
+    // has not find by categories, or any other field..., has not turn into ProductSummary
+    public PageResponse<ProductDetailResponse> getProducts(Pageable pageable) {
+        Page<Product> products = productRepository.findWithPageReponseBy(pageable);
+        return productMapper.toPageResponse(products);
+    }
+
+    public List<Product> findAllByIdIn(List<UUID> ids){
+        return productRepository.findAllByIdIn(ids);
+    }
 }
