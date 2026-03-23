@@ -2,13 +2,10 @@ package com.example.shopnow.product.rest;
 
 import lombok.RequiredArgsConstructor;
 import java.util.UUID;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.shopnow.product.ProductService;
-import com.example.shopnow.product.models.Product;
 import com.example.shopnow.product.rest.dto.CreateProductRequest;
 import com.example.shopnow.product.rest.dto.ProductDetailResponse;
 import com.example.shopnow.product.rest.dto.UpdateProductRequest;
@@ -22,9 +19,9 @@ public class ProductController {
     private final ProductService productService;
     
     @GetMapping("/{id}")
-    public ResponseEntity<Product> viewDetailsOfProduct(@PathVariable UUID id) {
-        Product product = productService.viewDetailsOfProduct(id);
-        return ResponseEntity.ok(product);
+    public ResponseEntity<ProductDetailResponse> viewDetailsOfProduct(@PathVariable UUID id) {
+        return ResponseEntity.ok(productService.viewDetailsOfProduct(id));
+
     }
 
     @PostMapping

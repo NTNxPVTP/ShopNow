@@ -1,4 +1,4 @@
-package com.example.shopnow.configuration;
+package com.example.shopnow.config;
 
 import java.time.Instant;
 
