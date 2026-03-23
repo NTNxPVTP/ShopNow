@@ -1,4 +1,4 @@
-package com.example.shopnow.shared;
+package com.example.shopnow.security.models;
 
 public enum TokenType {
     REFRESH_TOKEN,
