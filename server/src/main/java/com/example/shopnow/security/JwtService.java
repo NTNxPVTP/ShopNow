@@ -3,12 +3,9 @@ package com.example.shopnow.config;
 import com.example.shopnow.shared.TokenType;
 import com.example.shopnow.user.TokenRepository;
 import com.example.shopnow.user.models.Token;
-
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-
 import org.springframework.beans.factory.annotation.Value;
-
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -16,10 +13,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
