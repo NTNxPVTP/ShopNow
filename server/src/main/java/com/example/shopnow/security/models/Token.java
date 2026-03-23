@@ -1,10 +1,10 @@
-package com.example.shopnow.user.models;
+package com.example.shopnow.security.models;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.example.shopnow.shared.BaseEntity;
-import com.example.shopnow.shared.TokenType;
+import com.example.shopnow.user.models.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

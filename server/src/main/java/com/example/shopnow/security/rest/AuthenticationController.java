@@ -1,9 +1,10 @@
-package com.example.shopnow.user;
+package com.example.shopnow.security.rest;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.shopnow.user.models.AuthenticationRequest;
-import com.example.shopnow.user.models.AuthenticationResponse;
+import com.example.shopnow.security.AuthenticationService;
+import com.example.shopnow.security.rest.dto.AuthenticationRequest;
+import com.example.shopnow.security.rest.dto.AuthenticationResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequiredArgsConstructor
-public class AuthenticaitionController {
+public class AuthenticationController {
     private final AuthenticationService authenticationService;
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {

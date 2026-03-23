@@ -1,9 +1,9 @@
-package com.example.shopnow.user;
+package com.example.shopnow.security;
 
 import org.springframework.stereotype.Service;
 
-import com.example.shopnow.shared.TokenType;
-import com.example.shopnow.user.models.Token;
+import com.example.shopnow.security.models.Token;
+import com.example.shopnow.security.models.TokenType;
 import com.example.shopnow.user.models.User;
 
 import lombok.RequiredArgsConstructor;
