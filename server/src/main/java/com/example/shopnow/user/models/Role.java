@@ -1,4 +1,4 @@
-package com.example.shopnow.shared;
+package com.example.shopnow.user.models;
 
 public enum Role {
     SELLER,

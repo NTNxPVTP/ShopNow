@@ -1,10 +1,10 @@
-package com.example.shopnow.config;
+package com.example.shopnow.security;
 
-import com.example.shopnow.shared.TokenType;
-import com.example.shopnow.user.TokenRepository;
-import com.example.shopnow.user.models.Token;
+import com.example.shopnow.security.models.TokenType;
+import com.example.shopnow.security.TokenRepository;
+import com.example.shopnow.security.models.Token;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
+
 import org.springframework.beans.factory.annotation.Value;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;

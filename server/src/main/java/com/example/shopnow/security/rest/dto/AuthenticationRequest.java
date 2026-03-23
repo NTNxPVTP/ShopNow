@@ -1,4 +1,4 @@
-package com.example.shopnow.user.models;
+package com.example.shopnow.security.rest.dto;
 
 import lombok.Builder;
 

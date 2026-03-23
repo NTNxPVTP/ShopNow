@@ -10,7 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.shopnow.shared.BaseEntity;
-import com.example.shopnow.shared.Role;
+import com.example.shopnow.user.models.Role;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
