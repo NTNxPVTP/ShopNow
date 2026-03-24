@@ -20,6 +20,7 @@ import com.example.shopnow.order.rest.dto.OrderItemRequest;
 import com.example.shopnow.product.ProductService;
 import com.example.shopnow.product.models.Product;
 import com.example.shopnow.shared.PageResponse;
+import com.example.shopnow.user.CartService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +31,7 @@ public class OrderService {
     private final OrderRepository repository;
     private final OrderMapper mapper;
     private final ProductService productService;
+    private final CartService cartService;
     //has not check permission
     public OrderDetail getOrderDetail(UUID id){
         Order order = repository.findById(id)
@@ -45,6 +47,7 @@ public class OrderService {
 
     public OrderDetailResponse createOrder(CreateOrderRequest request) {
         List<OrderItemRequest> list=repository.saveAlList(request.listItems());
+        String info = cartService.updateProductQuantity(request.customerName(),request.totalPrice());
         Order order = mapper.fromCreateOrderRequestToOrder(request);
         order=repository.save(order);
         OrderDetailResponse detail=mapper.fromOrderToResponse(order);
