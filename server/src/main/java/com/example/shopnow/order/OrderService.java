@@ -50,6 +50,7 @@ public class OrderService {
     // has not set the payment method
     // has not insert batching
     // has not mapping to person
+    // has not sent event to reduce quantity from Product
     // has not valid
     @Transactional
     public OrderDTO createOrder(CreateOrderRequest request, User buyer) {
