@@ -48,35 +48,35 @@ public class OrderService {
     // TODO: write UnitTest
     // has not handle race condition
     // has not set the payment method
-    // has not insert batching 
+    // has not insert batching
     // has not mapping to person
     // has not valid
     @Transactional
     public OrderDTO createOrder(CreateOrderRequest request, User buyer) {
-
         UUID buyerId = buyer.getId();
 
-        //get Products from request
+        // get Products from request
         List<UUID> productIds = request.listItems().stream()
-                .map(OrderItemRequest::productId) //Method Reference 
+                .map(OrderItemRequest::productId) // Method Reference
                 .toList();
 
-        //get Products from database
+        // get Products from database
         List<ProductInfoForOrder> products = productService.getProductsForOrder(productIds);
 
         Map<UUID, ProductInfoForOrder> productMap = products.stream()
                 .collect(Collectors.toMap(ProductInfoForOrder::id, p -> p));
 
-        //prepare object
+        // prepare object
         BigDecimal totalPrice = BigDecimal.ZERO;
         Order order = orderMapper.fromRequestToOrder(request);
         List<OrderDetail> orderDetails = new ArrayList<>();
 
-        //check valid request, calculate totalPrice, prepare orderDetails
+        // check valid request, calculate totalPrice, prepare orderDetails
         for (OrderItemRequest item : request.listItems()) {
             ProductInfoForOrder productDto = productMap.get(item.productId());
 
             // Check exist
+            System.out.println("Check exist product here!");
             if (productDto == null) {
                 throw new DomainException(ErrorCode.PRODUCT_NOT_FOUND);
             }
@@ -86,34 +86,30 @@ public class OrderService {
                 throw new DomainException(ErrorCode.INSUFFICIENT_STOCK);
             }
 
-            //add order detail
+            // add order detail
             orderDetails.add(
-                OrderDetail.builder()
-                .order(order)
-                .productId(productDto.id())
-                .price(productDto.price())
-                .productName(productDto.name())
-                .quantity(item.quantity())
-                .build()
-            );
+                    OrderDetail.builder()
+                            .order(order)
+                            .productId(productDto.id())
+                            .price(productDto.price())
+                            .productName(productDto.name())
+                            .quantity(item.quantity())
+                            .build());
 
             BigDecimal itemTotal = productDto.price().multiply(BigDecimal.valueOf(item.quantity()));
             totalPrice = totalPrice.add(itemTotal);
         }
 
-        //finish order entity
+        // finish order entity
         order.setTotalPrice(totalPrice);
         order.setOrderDetails(orderDetails);
         order.setStatus(OrderStatus.IN_PROCESS);
-        order.setUserId(buyerId);
-        //save into database
+        order.setCustomerId(buyerId);
+        // save into database
         order = repository.save(order);
 
-        OrderDTO orderDTO= orderMapper.toDto(order);        
+        OrderDTO orderDTO = orderMapper.toDto(order);
         return orderDTO;
     }
-
-
-
 
 }

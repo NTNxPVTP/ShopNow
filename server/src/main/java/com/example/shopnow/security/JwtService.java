@@ -33,6 +33,7 @@ public class JwtService {
     private long jwtExpiration;
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long jwtRefreshExpiration;
+    @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
     @PostConstruct

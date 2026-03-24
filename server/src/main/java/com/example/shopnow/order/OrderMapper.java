@@ -13,6 +13,6 @@ public interface OrderMapper extends GenericMapper<Order, OrderDTO>{
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "orderDetails", ignore = true)
-    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "customerId", ignore = true)
     Order fromRequestToOrder(CreateOrderRequest request);
 }

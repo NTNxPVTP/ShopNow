@@ -12,6 +12,6 @@ import com.example.shopnow.user.models.User;
 public class DemoController {
     @GetMapping("/hello")
     public String helloWorld(@AuthenticationPrincipal User user){
-        return "Hello world";
+        return "Hello world " + user.getEmail();
     }
 }
