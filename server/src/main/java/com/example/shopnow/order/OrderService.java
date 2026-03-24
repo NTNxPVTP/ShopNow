@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.antlr.v4.runtime.atn.SemanticContext.OR;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,8 @@ import com.example.shopnow.exception.ErrorCode;
 import com.example.shopnow.order.models.Order;
 import com.example.shopnow.order.rest.dto.CreateOrderRequest;
 import com.example.shopnow.order.rest.dto.OrderDetail;
+import com.example.shopnow.order.rest.dto.OrderDetailResponse;
+import com.example.shopnow.order.rest.dto.OrderItemRequest;
 import com.example.shopnow.product.ProductService;
 import com.example.shopnow.product.models.Product;
 import com.example.shopnow.shared.PageResponse;
@@ -27,7 +30,6 @@ public class OrderService {
     private final OrderRepository repository;
     private final OrderMapper mapper;
     private final ProductService productService;
-
     //has not check permission
     public OrderDetail getOrderDetail(UUID id){
         Order order = repository.findById(id)
@@ -39,6 +41,14 @@ public class OrderService {
     public PageResponse<OrderDetail> getOrders(Pageable pageable){
         Page<Order> orders = repository.findWithPageReponseBy(pageable);
         return mapper.toPageResponse(orders);
+    }
+
+    public OrderDetailResponse createOrder(CreateOrderRequest request) {
+        List<OrderItemRequest> list=repository.saveAlList(request.listItems());
+        Order order = mapper.fromCreateOrderRequestToOrder(request);
+        order=repository.save(order);
+        OrderDetailResponse detail=mapper.fromOrderToResponse(order);
+        return detail;
     }
 
    
