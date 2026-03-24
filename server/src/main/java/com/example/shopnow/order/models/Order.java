@@ -23,7 +23,7 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private OrderStatus status;
-    private UUID userId;
+    private UUID customerId;
     private BigDecimal totalPrice;
     private String addressShipping;
     private String phoneNumber;
