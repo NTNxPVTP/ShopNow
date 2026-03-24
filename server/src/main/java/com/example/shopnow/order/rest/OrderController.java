@@ -13,10 +13,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.shopnow.order.OrderService;
+import com.example.shopnow.order.rest.dto.CreateOrderRequest;
 import com.example.shopnow.order.rest.dto.OrderDetail;
+import com.example.shopnow.order.rest.dto.OrderDetailResponse;
 import com.example.shopnow.shared.PageResponse;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -38,4 +43,10 @@ public class OrderController {
     ){
         return ResponseEntity.ok(service.getOrderDetail(id));
     }
+    @PostMapping()
+    public ResponseEntity<OrderDetailResponse> createOrder(@RequestBody CreateOrderRequest order) {
+        return ResponseEntity.ok(service.createOrder(order));
+    }
+    
+
 }
