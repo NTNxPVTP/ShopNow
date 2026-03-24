@@ -47,7 +47,7 @@ public class OrderService {
 
     public OrderDetailResponse createOrder(CreateOrderRequest request) {
         List<OrderItemRequest> list=repository.saveAlList(request.listItems());
-        String info = cartService.updateProductQuantity(request.customerName(),request.totalPrice());
+        String info = cartService.updateProductQuantity(request.customerName(),request.listItems().size());
         Order order = mapper.fromCreateOrderRequestToOrder(request);
         order=repository.save(order);
         OrderDetailResponse detail=mapper.fromOrderToResponse(order);
