@@ -1,16 +1,11 @@
 package com.example.shopnow.security;
 
-import com.example.shopnow.security.models.Token;
 import com.example.shopnow.security.models.TokenType;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Value;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -20,7 +15,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 

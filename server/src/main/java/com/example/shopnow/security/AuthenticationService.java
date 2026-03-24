@@ -11,7 +11,6 @@ import com.example.shopnow.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 
-
 @RequiredArgsConstructor
 @Service
 public class AuthenticationService {
@@ -19,14 +18,13 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final TokenService tokenService;
-    public AuthenticationResponse authenticate(AuthenticationRequest request){
+
+    //TODO: throw ErrorCode
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
-        System.out.println("user here:");
+                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         var user = userService.findByEmail(request.email()).orElseThrow();
         System.out.println(user);
-
         System.out.println("user here:");
 
         var jwtToken = jwtService.generateToken(user);
@@ -34,9 +32,9 @@ public class AuthenticationService {
         tokenService.revokeAllUserTokens(user);
         tokenService.saveUserTokens(user, jwtToken, refreshToken);
         return AuthenticationResponse
-                        .builder()
-                        .accessToken(jwtToken)
-                        .refreshToken(refreshToken)
-                        .build();
+                .builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }
