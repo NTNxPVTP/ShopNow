@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.shopnow.exception.DomainException;
 import com.example.shopnow.exception.ErrorCode;
+import com.example.shopnow.product.api.dto.ProductInfoForOrder;
 import com.example.shopnow.product.models.Product;
 import com.example.shopnow.product.models.ProductStatus;
 import com.example.shopnow.product.rest.dto.CreateProductRequest;
@@ -42,7 +43,9 @@ public class ProductService {
         return detail;
     }
 
+    //TODO: 
     // has not check permission shop owner
+    //soft delete
     @Transactional
     public String deleteProduct(UUID id) {
         int check = productRepository.deleteProductById(id);
@@ -68,7 +71,9 @@ public class ProductService {
         return productMapper.toPageResponse(products);
     }
 
-    public List<Product> findAllByIdIn(List<UUID> ids){
-        return productRepository.findAllByIdIn(ids);
+    public List<ProductInfoForOrder> getProductsForOrder(List<UUID> ids){
+        List<Product> products = productRepository.findAllByIdIn(ids);
+        return productMapper.toProductInfoForOrders(products);
     }
+
 }
