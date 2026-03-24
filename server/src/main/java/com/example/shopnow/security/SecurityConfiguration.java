@@ -18,23 +18,23 @@ public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtFilter jwtFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        return
-            http
-            .csrf(customizer -> customizer.disable())
-            .authorizeHttpRequests(req->req
-                    .requestMatchers(
-        "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/authenticate").permitAll()
-                    .anyRequest().authenticated()
-            )
-            .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) 
-            .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
+        return http
+                .csrf(customizer -> customizer.disable())
+                .authorizeHttpRequests(req -> req
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/authenticate")
+                        .permitAll()
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 }
