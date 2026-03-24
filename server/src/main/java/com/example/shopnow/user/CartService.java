@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 public class CartService {
 
     final private CartRepository cartRepository;
-    public String updateProductQuantity(String name,BigDecimal num){
+    public String updateProductQuantity(String name,Integer num){
         Cart cart = cartRepository.findByName(name);
         return "update successfully";
     }
