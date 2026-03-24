@@ -13,7 +13,7 @@ public enum ErrorCode {
 
     // Order Errors
     ORDER_NOT_FOUND("ORDER_001", "Order Not Found", "The requested order does not exist", HttpStatus.NOT_FOUND),
-
+    INSUFFICIENT_STOCK("ORDER_002", "Insufficient Stock", "The requested product quantity is not enough", HttpStatus.BAD_REQUEST),
     // Generic Erors
     UNCATEGORIZED_EXCEPTION("9999", "Uncategorized Error", "An unexpected error occurred",
             HttpStatus.INTERNAL_SERVER_ERROR);
