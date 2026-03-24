@@ -23,7 +23,12 @@ public class AuthenticationService {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
+        System.out.println("user here:");
         var user = userService.findByEmail(request.email()).orElseThrow();
+        System.out.println(user);
+
+        System.out.println("user here:");
+
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         tokenService.revokeAllUserTokens(user);

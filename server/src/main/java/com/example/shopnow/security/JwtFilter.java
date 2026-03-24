@@ -26,6 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+                System.out.println("Filter star here: ");
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userName;
@@ -36,8 +37,8 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        userName = jwtService.extractUsername(jwt);
         System.out.println("User name here");
+        userName = jwtService.extractUsername(jwt);
         System.out.println(userName);
         System.out.println("User name here");
 
@@ -55,7 +56,6 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
-        throw new UnsupportedOperationException("Unimplemented method 'doFilterInternal'");
     }
 
 }
