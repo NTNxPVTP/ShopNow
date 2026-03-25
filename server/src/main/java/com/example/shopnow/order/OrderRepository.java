@@ -10,5 +10,5 @@ import com.example.shopnow.order.models.Order;
 
 @Repository
 interface OrderRepository extends JpaRepository<Order, UUID>{
-    Page<Order> findWithPageReponseBy(Pageable pageable);
+    Page<Order> findWithPageReponseByCustomerId(Pageable pageable, UUID customerId);
 }

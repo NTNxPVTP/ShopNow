@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,15 +33,19 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<PageResponse<OrderDTO>> getOrers(
-            @RequestParam(required = false, defaultValue = "1") int page) {
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @AuthenticationPrincipal User viewer
+        ) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
-        return ResponseEntity.ok(service.getOrders(pageable));
+        return ResponseEntity.ok(service.getOrders(pageable, viewer));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderDetail(
-            @PathVariable UUID id) {
-        return ResponseEntity.ok(service.getOrderDetail(id));
+            @PathVariable UUID id,
+            @AuthenticationPrincipal User viewer
+        ) {
+        return ResponseEntity.ok(service.getOrderDetail(id,viewer));
     }
 
     @PostMapping

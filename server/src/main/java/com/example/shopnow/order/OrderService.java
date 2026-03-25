@@ -33,15 +33,22 @@ public class OrderService {
     private final ProductService productService;
 
     // has not check permission
-    public OrderDTO getOrderDetail(UUID id) {
+    public OrderDTO getOrderDetail(UUID id, User viewer) {
         Order order = repository.findById(id)
                 .orElseThrow(() -> new DomainException(ErrorCode.ORDER_NOT_FOUND));
+
+        if(!order.getCustomerId().equals(viewer.getId())){
+            System.out.println(order.getCustomerId());
+            System.out.println(viewer.getId());
+            throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
         return orderMapper.toDto(order);
     }
 
     // has not check permission, has not have specification
-    public PageResponse<OrderDTO> getOrders(Pageable pageable) {
-        Page<Order> orders = repository.findWithPageReponseBy(pageable);
+    public PageResponse<OrderDTO> getOrders(Pageable pageable, User customer) {
+        UUID customerId = customer.getId();
+        Page<Order> orders = repository.findWithPageReponseByCustomerId(pageable, customerId);
         return orderMapper.toPageResponse(orders);
     }
 
