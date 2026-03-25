@@ -22,5 +22,12 @@ public interface ProductRepository extends JpaRepository<Product, UUID > {
     Page<Product> findWithPageReponseBy(Pageable pageable);
 
     List<Product> findAllByIdIn(List<UUID> ids);
+    
+    @Modifying
+    @Query("Update Product p " +
+            "set p.quantity = p.quantity - :quantity " +        
+            "where p.quantity >= :quantity and p.id = :id"
+    )
+    int decreaseQuantity(@Param("id") UUID id,@Param("quantity") int quantity);
 }
     

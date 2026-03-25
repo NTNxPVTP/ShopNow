@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.shopnow.exception.DomainException;
 import com.example.shopnow.exception.ErrorCode;
+import com.example.shopnow.order.rest.dto.OrderItemRequest;
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
 import com.example.shopnow.product.models.Product;
 import com.example.shopnow.product.models.ProductStatus;
@@ -71,8 +72,29 @@ public class ProductService {
         return productMapper.toPageResponse(products);
     }
 
-    public List<ProductInfoForOrder> getProductsForOrder(List<UUID> ids){
+    private List<Product> getProducts(List<UUID> ids){
         List<Product> products = productRepository.findAllByIdIn(ids);
+        return products;
+    }
+
+    @Transactional
+    public List<ProductInfoForOrder> decreaseProducts(List<OrderItemRequest> itemRequests){
+        List<UUID> ids = itemRequests.stream()
+            .map(OrderItemRequest::productId)
+            .toList();
+        List<Product> products = getProducts(ids);
+
+        if(products.size() < itemRequests.size()){
+            throw new DomainException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        for(OrderItemRequest req : itemRequests){
+            int success = productRepository.decreaseQuantity(req.productId(), req.quantity());
+            if (success ==0) {
+                throw new DomainException(ErrorCode.PRODUCT_OUT_OF_STOCK);
+            }
+
+        }
         return productMapper.toProductInfoForOrders(products);
     }
 

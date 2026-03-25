@@ -46,24 +46,16 @@ public class OrderService {
     }
 
     // TODO: write UnitTest
-    // has not handle race condition
     // has not set the payment method
     // has not insert batching
-    // has not mapping to person
-    // has not sent event to reduce quantity from Product
-    // has not valid
     @Transactional
     public OrderDTO createOrder(CreateOrderRequest request, User buyer) {
         UUID buyerId = buyer.getId();
+        List<OrderItemRequest> itemRequests = request.listItems();
 
-        // get Products from request
-        List<UUID> productIds = request.listItems().stream()
-                .map(OrderItemRequest::productId) // Method Reference
-                .toList();
-
-        // get Products from database
-        List<ProductInfoForOrder> products = productService.getProductsForOrder(productIds);
-
+        // decrease Quantity and get Products from database
+        // Atomic update
+        List<ProductInfoForOrder> products = productService.decreaseProducts(itemRequests);
         Map<UUID, ProductInfoForOrder> productMap = products.stream()
                 .collect(Collectors.toMap(ProductInfoForOrder::id, p -> p));
 
@@ -74,30 +66,18 @@ public class OrderService {
 
         // check valid request, calculate totalPrice, prepare orderDetails
         for (OrderItemRequest item : request.listItems()) {
-            ProductInfoForOrder productDto = productMap.get(item.productId());
-
-            // Check exist
-            System.out.println("Check exist product here!");
-            if (productDto == null) {
-                throw new DomainException(ErrorCode.PRODUCT_NOT_FOUND);
-            }
-
-            // Check quantity
-            if (productDto.quantity() < item.quantity()) {
-                throw new DomainException(ErrorCode.INSUFFICIENT_STOCK);
-            }
-
+            ProductInfoForOrder productInfo = productMap.get(item.productId());
             // add order detail
             orderDetails.add(
                     OrderDetail.builder()
                             .order(order)
-                            .productId(productDto.id())
-                            .price(productDto.price())
-                            .productName(productDto.name())
+                            .productId(productInfo.id())
+                            .price(productInfo.price())
+                            .productName(productInfo.name())
                             .quantity(item.quantity())
                             .build());
 
-            BigDecimal itemTotal = productDto.price().multiply(BigDecimal.valueOf(item.quantity()));
+            BigDecimal itemTotal = productInfo.price().multiply(BigDecimal.valueOf(item.quantity()));
             totalPrice = totalPrice.add(itemTotal);
         }
 
