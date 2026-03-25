@@ -130,3 +130,17 @@ CREATE TABLE payments (
     transaction_id VARCHAR(255),
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 1. Tạo bảng Sub-orders (Đơn hàng con cho từng Shop)
+CREATE TABLE sub_orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+    shop_id UUID REFERENCES shops(id),
+    status order_status DEFAULT 'IN_PROCESS', -- Trạng thái riêng cho từng shop
+    total_price DECIMAL(12, 2) NOT NULL,      -- Tổng tiền của riêng shop này
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE order_detail DROP COLUMN order_id;
+ALTER TABLE order_detail ADD COLUMN sub_order_id UUID REFERENCES sub_orders(id) ON DELETE CASCADE;

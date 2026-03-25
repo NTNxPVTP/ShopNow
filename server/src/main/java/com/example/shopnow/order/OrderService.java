@@ -15,6 +15,7 @@ import com.example.shopnow.exception.ErrorCode;
 import com.example.shopnow.order.models.Order;
 import com.example.shopnow.order.models.OrderDetail;
 import com.example.shopnow.order.models.OrderStatus;
+import com.example.shopnow.order.models.SubOrder;
 import com.example.shopnow.order.rest.dto.CreateOrderRequest;
 import com.example.shopnow.order.rest.dto.OrderDTO;
 import com.example.shopnow.order.rest.dto.OrderItemRequest;
@@ -37,7 +38,7 @@ public class OrderService {
         Order order = repository.findById(id)
                 .orElseThrow(() -> new DomainException(ErrorCode.ORDER_NOT_FOUND));
 
-        if(!order.getCustomerId().equals(viewer.getId())){
+        if (!order.getCustomerId().equals(viewer.getId())) {
             System.out.println(order.getCustomerId());
             System.out.println(viewer.getId());
             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
@@ -60,44 +61,69 @@ public class OrderService {
         UUID buyerId = buyer.getId();
         List<OrderItemRequest> itemRequests = request.listItems();
 
-        // decrease Quantity and get Products from database
-        // Atomic update
+        // decrease product and get product (Atomic Update)
         List<ProductInfoForOrder> products = productService.decreaseProducts(itemRequests);
+
+        // prepare map product
         Map<UUID, ProductInfoForOrder> productMap = products.stream()
                 .collect(Collectors.toMap(ProductInfoForOrder::id, p -> p));
 
-        // prepare object
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        Order order = orderMapper.fromRequestToOrder(request);
-        List<OrderDetail> orderDetails = new ArrayList<>();
+        Order parentOrder = orderMapper.fromRequestToOrder(request);
+        parentOrder.setCustomerId(buyerId);
+        parentOrder.setStatus(OrderStatus.IN_PROCESS);
 
-        // check valid request, calculate totalPrice, prepare orderDetails
-        for (OrderItemRequest item : request.listItems()) {
-            ProductInfoForOrder productInfo = productMap.get(item.productId());
-            // add order detail
-            orderDetails.add(
-                    OrderDetail.builder()
-                            .order(order)
-                            .productId(productInfo.id())
-                            .price(productInfo.price())
-                            .productName(productInfo.name())
-                            .quantity(item.quantity())
-                            .build());
+        // Grouping item request by shopId
+        Map<UUID, List<OrderItemRequest>> itemsByShop = itemRequests.stream()
+                .collect(Collectors.groupingBy(item -> productMap.get(item.productId()).shopId()));
 
-            BigDecimal itemTotal = productInfo.price().multiply(BigDecimal.valueOf(item.quantity()));
-            totalPrice = totalPrice.add(itemTotal);
+        BigDecimal grandTotal = BigDecimal.ZERO;
+        List<SubOrder> subOrders = new ArrayList<>();
+
+        for (Map.Entry<UUID, List<OrderItemRequest>> entry : itemsByShop.entrySet()) {
+            UUID shopId = entry.getKey();
+            List<OrderItemRequest> shopItems = entry.getValue();
+
+            BigDecimal subOrderTotal = BigDecimal.ZERO;
+            List<OrderDetail> details = new ArrayList<>();
+
+            
+            SubOrder subOrder = SubOrder.builder()
+                    .order(parentOrder)
+                    .shopId(shopId)
+                    .status(OrderStatus.IN_PROCESS)
+                    .build();
+
+            
+            for (OrderItemRequest item : shopItems) {
+                ProductInfoForOrder pInfo = productMap.get(item.productId());
+                BigDecimal itemPrice = pInfo.price();
+                BigDecimal itemTotal = itemPrice.multiply(BigDecimal.valueOf(item.quantity()));
+
+                subOrderTotal = subOrderTotal.add(itemTotal);
+
+                details.add(OrderDetail.builder()
+                        .subOrder(subOrder)
+                        .productId(pInfo.id())
+                        .productName(pInfo.name())
+                        .price(itemPrice)
+                        .quantity(item.quantity())
+                        .build());
+            }
+
+            subOrder.setTotalPrice(subOrderTotal);
+            subOrder.setOrderDetails(details);
+
+            // add SubOrder into Parent Order
+            subOrders.add(subOrder);
+            grandTotal = grandTotal.add(subOrderTotal);
         }
 
-        // finish order entity
-        order.setTotalPrice(totalPrice);
-        order.setOrderDetails(orderDetails);
-        order.setStatus(OrderStatus.IN_PROCESS);
-        order.setCustomerId(buyerId);
-        // save into database
-        order = repository.save(order);
+        // update total price
+        parentOrder.setTotalPrice(grandTotal);
+        parentOrder.setSubOrders(subOrders);
 
-        OrderDTO orderDTO = orderMapper.toDto(order);
-        return orderDTO;
+        parentOrder = repository.save(parentOrder);
+        return orderMapper.toDto(parentOrder);
     }
 
 }

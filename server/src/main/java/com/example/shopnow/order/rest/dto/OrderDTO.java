@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
 import com.example.shopnow.order.models.OrderStatus;
 
 public record OrderDTO(
@@ -14,7 +13,7 @@ public record OrderDTO(
     String addressShipping,
     String phoneNumber,
     String customerName,
-    List<OrderDetailDTO> orderDetails,
+    List<SubOrderDTO> subOrders,
     LocalDateTime createdAt
 ) {  
 }
