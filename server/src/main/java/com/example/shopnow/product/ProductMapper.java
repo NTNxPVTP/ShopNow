@@ -1,11 +1,14 @@
 package com.example.shopnow.product;
 
+import java.util.List;
+
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import com.example.shopnow.product.api.dto.ProductInfoForOrder;
 import com.example.shopnow.product.models.Product;
 import com.example.shopnow.product.rest.dto.CreateProductRequest;
 import com.example.shopnow.product.rest.dto.ProductDetailResponse;
@@ -30,4 +33,6 @@ interface ProductMapper extends GenericMapper<Product, ProductDetailResponse>{
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     void updateProductFromUpdateRequest(UpdateProductRequest request,@MappingTarget Product product);
+
+    List<ProductInfoForOrder> toProductInfoForOrders(List<Product> products);
 }

@@ -22,36 +22,40 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-                final String authHeader=request.getHeader("Authorization");
-                final String jwt;
-                final String userName;
+                System.out.println("Filter star here: ");
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        final String userName;
 
-                if(authHeader == null || !authHeader.startsWith("Bearer ")){
-                    filterChain.doFilter(request, response);
-                    return;
-                }
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
+        jwt = authHeader.substring(7);
+        System.out.println("User name here");
+        userName = jwtService.extractUsername(jwt);
+        System.out.println(userName);
+        System.out.println("User name here");
 
-                jwt=authHeader.substring(7);
-                userName=jwtService.extractUsername(jwt);
-                if(userName!=null&&SecurityContextHolder.getContext().getAuthentication()==null){
-                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
-                    if(jwtService.isAccessTokenValid(jwt, userDetails)){
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+        if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+            if (jwtService.isAccessTokenValid(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities());
-                    
-                    authToken.setDetails( new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                    }   
-                }
-                filterChain.doFilter(request, response);
-        throw new UnsupportedOperationException("Unimplemented method 'doFilterInternal'");
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+        filterChain.doFilter(request, response);
     }
 
 }

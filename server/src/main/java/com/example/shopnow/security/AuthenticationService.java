@@ -19,10 +19,14 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final TokenService tokenService;
 
+    //TODO: throw ErrorCode
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         var user = userService.findByEmail(request.email()).orElseThrow();
+        System.out.println(user);
+        System.out.println("user here:");
+
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         tokenService.revokeAllUserTokens(user);

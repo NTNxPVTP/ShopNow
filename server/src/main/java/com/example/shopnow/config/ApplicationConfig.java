@@ -22,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 @EnableJpaAuditing
 public class ApplicationConfig {
 
-    private final UserRepository userRepository;
     private final UserService userService;
 
     @Bean
