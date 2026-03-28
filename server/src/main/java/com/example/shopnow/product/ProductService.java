@@ -29,7 +29,7 @@ public class ProductService {
     private final ProductMapper productMapper;
     public ProductDetailResponse viewDetailsOfProduct(UUID id) {
 
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByIdAndStatus(id, ProductStatus.ACTIVE)
                 .orElseThrow(()-> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
         return productMapper.toDto(product);
     }
@@ -73,7 +73,7 @@ public class ProductService {
     }
 
     private List<Product> getProducts(List<UUID> ids){
-        List<Product> products = productRepository.findAllByIdIn(ids);
+        List<Product> products = productRepository.findAllWithShopByStatusAndIdIn( ProductStatus.ACTIVE, ids);
         return products;
     }
 

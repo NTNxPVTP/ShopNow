@@ -1,4 +1,4 @@
-package com.example.shopnow.order;
+package com.example.shopnow.order.mapper;
 
 import org.mapstruct.Mapper;
 import com.example.shopnow.order.models.OrderDetail;

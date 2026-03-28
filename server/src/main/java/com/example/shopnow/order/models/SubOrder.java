@@ -2,9 +2,8 @@ package com.example.shopnow.order.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,10 +32,11 @@ public class SubOrder extends BaseEntity {
     private Order order;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "subOrder", cascade = CascadeType.ALL)
-    private List<OrderDetail> orderDetails;
+    private Set<OrderDetail> orderDetails;
 
     private UUID shopId;
     private BigDecimal totalPrice;
+    private UUID shopOwnerId;
 
     @CreatedDate
     private LocalDateTime createdAt;

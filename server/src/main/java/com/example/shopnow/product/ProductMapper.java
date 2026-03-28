@@ -35,6 +35,7 @@ interface ProductMapper extends GenericMapper<Product, ProductDetailResponse> {
     void updateProductFromUpdateRequest(UpdateProductRequest request, @MappingTarget Product product);
 
     @Mapping(target = "shopId", source = "shop.id")
+    @Mapping(target ="shopOwnerId", source = "shop.ownerId")
     ProductInfoForOrder toProductInfoForOrder(Product product);
 
     List<ProductInfoForOrder> toProductInfoForOrders(List<Product> products);

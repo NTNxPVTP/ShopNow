@@ -2,13 +2,16 @@ package com.example.shopnow.product;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import com.example.shopnow.product.models.Product;
+import com.example.shopnow.product.models.ProductStatus;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.repository.query.Param;
 
@@ -19,9 +22,12 @@ public interface ProductRepository extends JpaRepository<Product, UUID > {
     @Query("Delete from Product p where p.id = :id")
     int deleteProductById(@Param("id") UUID id);
 
+    Optional<Product> findByIdAndStatus(UUID id, ProductStatus status);
+
     Page<Product> findWithPageReponseBy(Pageable pageable);
 
-    List<Product> findAllByIdIn(List<UUID> ids);
+    @EntityGraph(attributePaths = {"shop"})
+    List<Product> findAllWithShopByStatusAndIdIn( ProductStatus status, List<UUID> ids);
     
     @Modifying
     @Query("Update Product p " +

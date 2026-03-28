@@ -1,10 +1,7 @@
 package com.example.shopnow.order;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,16 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.shopnow.exception.DomainException;
 import com.example.shopnow.exception.ErrorCode;
-import com.example.shopnow.order.models.Order;
-import com.example.shopnow.order.models.OrderDetail;
-import com.example.shopnow.order.models.OrderStatus;
-import com.example.shopnow.order.models.SubOrder;
-import com.example.shopnow.order.rest.dto.CreateOrderRequest;
-import com.example.shopnow.order.rest.dto.OrderDTO;
-import com.example.shopnow.order.rest.dto.OrderItemRequest;
+import com.example.shopnow.order.mapper.OrderMapper;
+import com.example.shopnow.order.mapper.SubOrderMapper;
+import com.example.shopnow.order.models.*;
+import com.example.shopnow.order.rest.dto.*;
 import com.example.shopnow.product.ProductService;
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
 import com.example.shopnow.shared.PageResponse;
+import com.example.shopnow.user.models.Role;
 import com.example.shopnow.user.models.User;
 import lombok.RequiredArgsConstructor;
 
@@ -29,13 +24,16 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true, rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class OrderService {
-    private final OrderRepository repository;
+    private final OrderRepository orderRepository;
+    private final SubOrderRepository subOrderRepository;
     private final OrderMapper orderMapper;
+    private final SubOrderMapper subOrderMapper;
     private final ProductService productService;
 
     // has not check permission
     public OrderDTO getOrderDetail(UUID id, User viewer) {
-        Order order = repository.findById(id)
+
+        Order order = orderRepository.findWithDetailById(id)
                 .orElseThrow(() -> new DomainException(ErrorCode.ORDER_NOT_FOUND));
 
         if (!order.getCustomerId().equals(viewer.getId())) {
@@ -47,10 +45,44 @@ public class OrderService {
     }
 
     // has not check permission, has not have specification
-    public PageResponse<OrderDTO> getOrders(Pageable pageable, User customer) {
+    public PageResponse<OrderSummaryDTO> getOrders(Pageable pageable, User customer) {
         UUID customerId = customer.getId();
-        Page<Order> orders = repository.findWithPageReponseByCustomerId(pageable, customerId);
-        return orderMapper.toPageResponse(orders);
+        Page<Order> orders = orderRepository.findWithPageReponseAndDetailByCustomerId(pageable, customerId);
+        System.out.println(orders);
+        return orderMapper.toSummaryPageResponse(orders);
+    }
+
+    public SubOrderDTO getSubOrderDetail(UUID id, User viewer) {
+        if (viewer == null || viewer.getRole() == null) {
+            throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
+
+        SubOrder subOrder;
+
+        if (!viewer.getRole().equals(Role.SELLER)) {
+            throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
+
+        subOrder = subOrderRepository.findWithDetailByIdAndShopOwnerId(id, viewer.getId())
+                .orElseThrow(() -> new DomainException(ErrorCode.ORDER_NOT_FOUND));
+
+        return subOrderMapper.toDto(subOrder);
+    }
+
+    public PageResponse<SubOrderSummaryDTO> getSubOrders(Pageable pageable, User viewer) {
+        if (viewer == null || viewer.getRole() == null) {
+            throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
+
+        Page<SubOrder> subOrders;
+
+        if (!viewer.getRole().equals(Role.SELLER)) {
+             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
+        } 
+        
+        subOrders = subOrderRepository.findWithPageResponseByShopOwnerId(pageable, viewer.getId());
+
+        return subOrderMapper.toSummaryPageResponse(subOrders);
     }
 
     // TODO: write UnitTest
@@ -77,23 +109,25 @@ public class OrderService {
                 .collect(Collectors.groupingBy(item -> productMap.get(item.productId()).shopId()));
 
         BigDecimal grandTotal = BigDecimal.ZERO;
-        List<SubOrder> subOrders = new ArrayList<>();
+        Set<SubOrder> subOrders = new HashSet<>();
 
         for (Map.Entry<UUID, List<OrderItemRequest>> entry : itemsByShop.entrySet()) {
             UUID shopId = entry.getKey();
             List<OrderItemRequest> shopItems = entry.getValue();
+            UUID shopOwnerId = productMap.get(shopItems.get(0).productId()).shopOwnerId();
+            System.out.println("Shop owwner here: ");
+            System.out.println(shopOwnerId);
 
             BigDecimal subOrderTotal = BigDecimal.ZERO;
-            List<OrderDetail> details = new ArrayList<>();
+            Set<OrderDetail> details = new HashSet<>();
 
-            
             SubOrder subOrder = SubOrder.builder()
                     .order(parentOrder)
                     .shopId(shopId)
+                    .shopOwnerId(shopOwnerId)
                     .status(OrderStatus.IN_PROCESS)
                     .build();
 
-            
             for (OrderItemRequest item : shopItems) {
                 ProductInfoForOrder pInfo = productMap.get(item.productId());
                 BigDecimal itemPrice = pInfo.price();
@@ -122,7 +156,10 @@ public class OrderService {
         parentOrder.setTotalPrice(grandTotal);
         parentOrder.setSubOrders(subOrders);
 
-        parentOrder = repository.save(parentOrder);
+        parentOrder = orderRepository.save(parentOrder);
+        System.out.println("parentOrder herre: ");
+
+        System.out.println(parentOrder);
         return orderMapper.toDto(parentOrder);
     }
 

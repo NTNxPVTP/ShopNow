@@ -2,7 +2,7 @@ package com.example.shopnow.order.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -31,7 +31,7 @@ public class Order extends BaseEntity {
     private String customerName;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.ALL)
-    private List<SubOrder> subOrders;
+    private Set<SubOrder> subOrders;
 
     @CreatedDate
     private LocalDateTime createdAt;

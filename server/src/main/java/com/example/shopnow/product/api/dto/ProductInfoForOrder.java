@@ -8,6 +8,7 @@ public record ProductInfoForOrder(
     BigDecimal price,
     String name,
     Integer quantity,
-    UUID shopId
+    UUID shopId,
+    UUID shopOwnerId
 ) {
 }
