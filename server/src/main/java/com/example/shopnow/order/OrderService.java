@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.shopnow.exception.DomainException;
@@ -12,6 +13,8 @@ import com.example.shopnow.exception.ErrorCode;
 import com.example.shopnow.order.mapper.OrderMapper;
 import com.example.shopnow.order.mapper.SubOrderMapper;
 import com.example.shopnow.order.models.*;
+import com.example.shopnow.order.specification.OrderSpecification;
+import com.example.shopnow.order.specification.SubOrderSpecification;
 import com.example.shopnow.order.rest.dto.*;
 import com.example.shopnow.product.ProductService;
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
@@ -44,16 +47,24 @@ public class OrderService {
         return orderMapper.toDto(order);
     }
 
-    // has not check permission, has not have specification
-    public PageResponse<OrderSummaryDTO> getOrders(Pageable pageable, User customer) {
+    public PageResponse<OrderSummaryDTO> getOrders(Pageable pageable, User customer, OrderStatus status, UUID shopId) {
+        if (customer == null || customer.getId() == null) {
+            throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
+
         UUID customerId = customer.getId();
-        Page<Order> orders = orderRepository.findWithPageReponseAndDetailByCustomerId(pageable, customerId);
-        System.out.println(orders);
+        Specification<Order> specification = Specification
+                .where(OrderSpecification.hasStatus(status)
+                .and(OrderSpecification.hasShopId(shopId))
+                .and(OrderSpecification.hasCustomerId(customerId))
+                );
+
+        Page<Order> orders = orderRepository.findAll(specification, pageable);
         return orderMapper.toSummaryPageResponse(orders);
     }
 
     public SubOrderDTO getSubOrderDetail(UUID id, User viewer) {
-        if (viewer == null || viewer.getRole() == null) {
+        if (viewer == null || viewer.getRole() == null || viewer.getId() == null) {
             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
         }
 
@@ -69,19 +80,26 @@ public class OrderService {
         return subOrderMapper.toDto(subOrder);
     }
 
-    public PageResponse<SubOrderSummaryDTO> getSubOrders(Pageable pageable, User viewer) {
-        if (viewer == null || viewer.getRole() == null) {
+    public PageResponse<SubOrderSummaryDTO> getSubOrders(Pageable pageable, User viewer, OrderStatus status,
+            UUID shopId) {
+        if (viewer == null || viewer.getRole() == null || viewer.getId() == null) {
             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
         }
 
         Page<SubOrder> subOrders;
 
         if (!viewer.getRole().equals(Role.SELLER)) {
-             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
-        } 
-        
-        subOrders = subOrderRepository.findWithPageResponseByShopOwnerId(pageable, viewer.getId());
+            throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
 
+        Specification<SubOrder> specification = Specification
+                .where(SubOrderSpecification.hasStatus(status))
+                .and(SubOrderSpecification.hasShopId(shopId))
+                .and(SubOrderSpecification.hasShopOwnerId(viewer.getId()))
+                ;
+
+        subOrders = subOrderRepository.findAll(specification, pageable);
+        
         return subOrderMapper.toSummaryPageResponse(subOrders);
     }
 

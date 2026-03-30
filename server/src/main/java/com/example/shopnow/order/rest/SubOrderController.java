@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.example.shopnow.order.OrderService;
+import com.example.shopnow.order.models.OrderStatus;
 import com.example.shopnow.order.rest.dto.SubOrderDTO;
 import com.example.shopnow.order.rest.dto.SubOrderSummaryDTO;
 import com.example.shopnow.shared.PageResponse;
@@ -31,10 +32,13 @@ public class SubOrderController {
     @GetMapping
     public ResponseEntity<PageResponse<SubOrderSummaryDTO>> getSubOrders(
         @AuthenticationPrincipal User viewer,
-        @RequestParam(required = false, defaultValue = "1") int page
+        @RequestParam(required = false, defaultValue = "1") int page,
+        @RequestParam(required = false) OrderStatus status,
+        @RequestParam(required = false) UUID shopId
     ){
+        System.out.println("Call service here: ");
         Pageable pageable = PageRequest.of(page-1, 10, Sort.by("createdAt").descending());
-        return ResponseEntity.ok(service.getSubOrders(pageable,viewer));
+        return ResponseEntity.ok(service.getSubOrders(pageable,viewer, status, shopId));
     }
     
 }

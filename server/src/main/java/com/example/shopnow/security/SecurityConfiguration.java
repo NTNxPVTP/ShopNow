@@ -35,8 +35,8 @@ public class SecurityConfiguration {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-               .oauth2Login(oauth2 -> oauth2
-                       .successHandler(oAuth2AuthenticationSuccessHandler))
+        //        .oauth2Login(oauth2 -> oauth2
+        //                .successHandler(oAuth2AuthenticationSuccessHandler))
                 .build();
     }
 }

@@ -11,8 +11,8 @@ import com.example.shopnow.order.rest.dto.CreateOrderRequest;
 import com.example.shopnow.order.rest.dto.OrderDTO;
 import com.example.shopnow.order.rest.dto.OrderSummaryDTO;
 import com.example.shopnow.shared.GenericMapper;
-import com.example.shopnow.shared.*;
 import com.example.shopnow.shared.PageResponse;
+import com.example.shopnow.shared.PageInfo;
 
 @Mapper(componentModel = "spring", uses = { SubOrderMapper.class })
 public interface OrderMapper extends GenericMapper<Order, OrderDTO> {
@@ -23,6 +23,7 @@ public interface OrderMapper extends GenericMapper<Order, OrderDTO> {
     @Mapping(target = "customerId", ignore = true)
     Order fromRequestToOrder(CreateOrderRequest request);
 
+    @Mapping(target = "subOrders", source = "subOrders")
     OrderSummaryDTO toSummaryDTO(Order order);
 
     default PageResponse<OrderSummaryDTO> toSummaryPageResponse(Page<Order> page) {

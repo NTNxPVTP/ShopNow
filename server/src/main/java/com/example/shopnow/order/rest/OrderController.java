@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.example.shopnow.order.OrderService;
+import com.example.shopnow.order.models.OrderStatus;
 import com.example.shopnow.order.rest.dto.CreateOrderRequest;
 import com.example.shopnow.order.rest.dto.OrderDTO;
 import com.example.shopnow.order.rest.dto.OrderSummaryDTO;
@@ -26,10 +27,12 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<PageResponse<OrderSummaryDTO>> getOrers(
             @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false) OrderStatus status,
+            @RequestParam(required = false) UUID shopId,
             @AuthenticationPrincipal User viewer
         ) {
         Pageable pageable = PageRequest.of(page-1, 10, Sort.by("createdAt").descending());
-        return ResponseEntity.ok(service.getOrders(pageable, viewer));
+        return ResponseEntity.ok(service.getOrders(pageable, viewer, status, shopId));
     }
 
     @GetMapping("/{id}")
