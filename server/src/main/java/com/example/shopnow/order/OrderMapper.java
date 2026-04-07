@@ -2,7 +2,6 @@ package com.example.shopnow.order;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
 import com.example.shopnow.order.models.Order;
 import com.example.shopnow.order.rest.dto.CreateOrderRequest;
 import com.example.shopnow.order.rest.dto.OrderDTO;
@@ -16,5 +15,4 @@ public interface OrderMapper extends GenericMapper<Order, OrderDTO>{
     @Mapping(target = "orderDetails", ignore = true)
     @Mapping(target = "customerId", ignore = true)
     Order fromRequestToOrder(CreateOrderRequest request);
-
 }

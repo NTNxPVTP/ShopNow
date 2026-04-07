@@ -16,15 +16,11 @@ import com.example.shopnow.order.models.Order;
 import com.example.shopnow.order.models.OrderDetail;
 import com.example.shopnow.order.models.OrderStatus;
 import com.example.shopnow.order.rest.dto.CreateOrderRequest;
-import com.example.shopnow.order.rest.dto.OrderDetailDTO;
-import com.example.shopnow.order.rest.dto.OrderDetailResponse;
 import com.example.shopnow.order.rest.dto.OrderDTO;
 import com.example.shopnow.order.rest.dto.OrderItemRequest;
 import com.example.shopnow.product.ProductService;
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
 import com.example.shopnow.shared.PageResponse;
-import com.example.shopnow.user.CartService;
-
 import com.example.shopnow.user.models.User;
 import lombok.RequiredArgsConstructor;
 

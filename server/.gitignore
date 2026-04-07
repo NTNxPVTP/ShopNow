@@ -31,8 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+<<<<<<<< HEAD:server/.gitignore
 
 # Security
 .env
 .env.local
 .env.*
+========
+server/.env
+>>>>>>>> 118610f81ae45cd5a33e8a0d9c2f7686d2b4a9ea:.gitignore
