@@ -1,5 +1,6 @@
 package com.example.shopnow.order.rest.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -10,7 +11,7 @@ public record SubOrderDTO(
     UUID id,
     UUID shopId,
     OrderStatus status,
-    Integer totalPrice,
+    BigDecimal totalPrice,
     List<OrderDetailDTO> orderDetails,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
