@@ -12,6 +12,6 @@ import java.util.List;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart,UUID> {
-    @EntityGraph(attributePaths = "user")
-    Cart findByName(String name);
+    // @EntityGraph(attributePaths = "user")
+    // Cart findByName(String name);
 }

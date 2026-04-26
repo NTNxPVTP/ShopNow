@@ -14,7 +14,7 @@ public class CartService {
 
     final private CartRepository cartRepository;
     public String updateProductQuantity(String name,Integer num){
-        Cart cart = cartRepository.findByName(name);
+        // Cart cart = cartRepository.findByName(name);
         return "update successfully";
     }
 }

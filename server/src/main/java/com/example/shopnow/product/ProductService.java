@@ -1,9 +1,11 @@
 package com.example.shopnow.product;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,9 +68,28 @@ public class ProductService {
         return productMapper.toDto(product);
     }
 
-    // has not find by categories, or any other field..., has not turn into ProductSummary
-    public PageResponse<ProductDetailResponse> getProducts(Pageable pageable) {
-        Page<Product> products = productRepository.findWithPageReponseBy(pageable);
+    public PageResponse<ProductDetailResponse> getProducts(
+        Pageable pageable,
+        UUID shopId,
+        UUID categoryId,
+        String keyword,
+        BigDecimal minPrice,
+        BigDecimal maxPrice,
+        boolean inStockOnly
+    ) {
+        Specification<Product> specification = Specification
+            .where(ProductSpecification.hasStatus(ProductStatus.ACTIVE))
+            .and(ProductSpecification.hasShopId(shopId))
+            .and(ProductSpecification.hasCategoryId(categoryId))
+            .and(ProductSpecification.hasNameLike(keyword))
+            .and(ProductSpecification.hasPriceGreaterThanOrEqual(minPrice))
+            .and(ProductSpecification.hasPriceLessThanOrEqual(maxPrice));
+
+        if (inStockOnly) {
+            specification = specification.and(ProductSpecification.isInStock());
+        }
+
+        Page<Product> products = productRepository.findAll(specification, pageable);
         return productMapper.toPageResponse(products);
     }
 

@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ import org.springframework.data.repository.query.Param;
 
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, UUID > {
+public interface ProductRepository extends JpaRepository<Product, UUID >, JpaSpecificationExecutor<Product> {
     @Modifying
     @Query("Delete from Product p where p.id = :id")
     int deleteProductById(@Param("id") UUID id);
