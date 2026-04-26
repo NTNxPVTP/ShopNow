@@ -14,10 +14,10 @@ import lombok.*;
 @Builder
 @Table(name = "order_detail")
 public class OrderDetail extends BaseEntity{
-    private UUID id;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @JoinColumn(name = "sub_order_id")
+    private SubOrder subOrder;
     private String productName;
     private UUID productId;
     private BigDecimal price;

@@ -1,5 +1,6 @@
 package com.example.shopnow.product.rest;
 
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import java.util.UUID;
 import org.springframework.data.domain.*;
@@ -45,9 +46,24 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<PageResponse<ProductDetailResponse>> getProducts(
-        @RequestParam(required = false, defaultValue = "1") int page
+        @RequestParam(required = false, defaultValue = "1") int page,
+        @RequestParam(required = false, defaultValue = "10") int size,
+        @RequestParam(required = false) UUID shopId,
+        @RequestParam(required = false) UUID categoryId,
+        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) BigDecimal minPrice,
+        @RequestParam(required = false) BigDecimal maxPrice,
+        @RequestParam(required = false, defaultValue = "false") boolean inStockOnly
     ){
-        Pageable pageable = PageRequest.of(page-1, 10, Sort.by("createdAt").descending());
-        return ResponseEntity.ok(productService.getProducts(pageable));
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        return ResponseEntity.ok(productService.getProducts(
+            pageable,
+            shopId,
+            categoryId,
+            keyword,
+            minPrice,
+            maxPrice,
+            inStockOnly
+        ));
     }
 }

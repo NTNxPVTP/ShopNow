@@ -31,8 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+.m2/
+.mvn/
+target/
 
 # Security
 .env
 .env.local
 .env.*
+server/.env
+
