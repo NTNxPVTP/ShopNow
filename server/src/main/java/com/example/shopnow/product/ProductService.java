@@ -1,14 +1,17 @@
 package com.example.shopnow.product;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.shopnow.exception.DomainException;
 import com.example.shopnow.exception.ErrorCode;
+import com.example.shopnow.order.rest.dto.OrderItemRequest;
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
 import com.example.shopnow.product.models.Product;
 import com.example.shopnow.product.models.ProductStatus;
@@ -28,7 +31,7 @@ public class ProductService {
     private final ProductMapper productMapper;
     public ProductDetailResponse viewDetailsOfProduct(UUID id) {
 
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByIdAndStatus(id, ProductStatus.ACTIVE)
                 .orElseThrow(()-> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
         return productMapper.toDto(product);
     }
@@ -65,14 +68,54 @@ public class ProductService {
         return productMapper.toDto(product);
     }
 
-    // has not find by categories, or any other field..., has not turn into ProductSummary
-    public PageResponse<ProductDetailResponse> getProducts(Pageable pageable) {
-        Page<Product> products = productRepository.findWithPageReponseBy(pageable);
+    public PageResponse<ProductDetailResponse> getProducts(
+        Pageable pageable,
+        UUID shopId,
+        UUID categoryId,
+        String keyword,
+        BigDecimal minPrice,
+        BigDecimal maxPrice,
+        boolean inStockOnly
+    ) {
+        Specification<Product> specification = Specification
+            .where(ProductSpecification.hasStatus(ProductStatus.ACTIVE))
+            .and(ProductSpecification.hasShopId(shopId))
+            .and(ProductSpecification.hasCategoryId(categoryId))
+            .and(ProductSpecification.hasNameLike(keyword))
+            .and(ProductSpecification.hasPriceGreaterThanOrEqual(minPrice))
+            .and(ProductSpecification.hasPriceLessThanOrEqual(maxPrice));
+
+        if (inStockOnly) {
+            specification = specification.and(ProductSpecification.isInStock());
+        }
+
+        Page<Product> products = productRepository.findAll(specification, pageable);
         return productMapper.toPageResponse(products);
     }
 
-    public List<ProductInfoForOrder> getProductsForOrder(List<UUID> ids){
-        List<Product> products = productRepository.findAllByIdIn(ids);
+    private List<Product> getProducts(List<UUID> ids){
+        List<Product> products = productRepository.findAllWithShopByStatusAndIdIn( ProductStatus.ACTIVE, ids);
+        return products;
+    }
+
+    @Transactional
+    public List<ProductInfoForOrder> decreaseProducts(List<OrderItemRequest> itemRequests){
+        List<UUID> ids = itemRequests.stream()
+            .map(OrderItemRequest::productId)
+            .toList();
+        List<Product> products = getProducts(ids);
+
+        if(products.size() < itemRequests.size()){
+            throw new DomainException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        for(OrderItemRequest req : itemRequests){
+            int success = productRepository.decreaseQuantity(req.productId(), req.quantity());
+            if (success ==0) {
+                throw new DomainException(ErrorCode.PRODUCT_OUT_OF_STOCK);
+            }
+
+        }
         return productMapper.toProductInfoForOrders(products);
     }
 

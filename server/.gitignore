@@ -34,13 +34,10 @@ build/
 .m2/
 .mvn/
 target/
-../.vscode/
-
 
 # Security
 .env
 .env.local
 .env.*
-========
 server/.env
 

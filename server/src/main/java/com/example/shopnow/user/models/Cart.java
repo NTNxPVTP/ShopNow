@@ -26,11 +26,10 @@ import lombok.Setter;
 @Entity
 @Table(name="carts")
 public class Cart extends BaseEntity {
-    private UUID customerId;
     private BigDecimal totalPrice;
     private Integer totalProduct;
 
     @OneToOne
-    @JoinColumn(name = "customerId")
+    @JoinColumn(name = "customer_id")
     private User user;
 }
