@@ -9,6 +9,10 @@ import com.example.shopnow.product.models.Product;
 import com.example.shopnow.product.models.ProductStatus;
 
 public class ProductSpecification {
+    public static Specification<Product> isNotDeleted() {
+        return (root, query, cb) -> cb.isFalse(root.get("isDeleted"));
+    }
+
     public static Specification<Product> hasProductId(UUID productId) {
         return (root, query, cb) -> {
             if (productId == null) {
