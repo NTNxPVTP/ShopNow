@@ -146,3 +146,5 @@ ALTER TABLE order_detail DROP COLUMN order_id;
 ALTER TABLE order_detail ADD COLUMN sub_order_id UUID REFERENCES sub_orders(id) ON DELETE CASCADE;
 
 ALTER TABLE sub_orders ADD COLUMN shop_owner_id UUID;
+
+ALTER TABLE products ADD COLUMN is_deleted BOOLEAN DEFAULT false;

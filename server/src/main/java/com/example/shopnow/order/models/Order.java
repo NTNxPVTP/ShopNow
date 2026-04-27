@@ -35,4 +35,5 @@ public class Order extends BaseEntity {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
 }

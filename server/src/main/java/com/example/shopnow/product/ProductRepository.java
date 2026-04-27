@@ -16,25 +16,31 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.repository.query.Param;
 
-
 @Repository
-public interface ProductRepository extends JpaRepository<Product, UUID >, JpaSpecificationExecutor<Product> {
+public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
     @Modifying
-    @Query("Delete from Product p where p.id = :id")
-    int deleteProductById(@Param("id") UUID id);
+    @Query("""
+            update Product p
+            set p.isDeleted = true
+            where p.id = :id and p.shop.ownerId = :shopOwnerId and p.isDeleted = false
+            """)
+    int softDeleteProductByIdAndShopOwnerId(@Param("id") UUID id, @Param("shopOwnerId") UUID shopOwnerId);
 
-    Optional<Product> findByIdAndStatus(UUID id, ProductStatus status);
+    Optional<Product> findByIdAndStatusAndIsDeletedFalse(UUID id, ProductStatus status);
+
+    Optional<Product> findByIdAndIsDeletedFalse(UUID id);
 
     Page<Product> findWithPageReponseBy(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"shop"})
-    List<Product> findAllWithShopByStatusAndIdIn( ProductStatus status, List<UUID> ids);
-    
+    @EntityGraph(attributePaths = { "shop" })
+    List<Product> findAllWithShopByStatusAndIsDeletedFalseAndIdIn(ProductStatus status, List<UUID> ids);
+
     @Modifying
     @Query("Update Product p " +
-            "set p.quantity = p.quantity - :quantity " +        
-            "where p.quantity >= :quantity and p.id = :id"
-    )
-    int decreaseQuantity(@Param("id") UUID id,@Param("quantity") int quantity);
+            "set p.quantity = p.quantity - :quantity " +
+            "where p.quantity >= :quantity and p.id = :id and p.isDeleted = false")
+    int decreaseQuantity(@Param("id") UUID id, @Param("quantity") int quantity);
+
+    @EntityGraph(attributePaths = { "shop" })
+    Optional<Product> findWithShopById(UUID id);
 }
-    
