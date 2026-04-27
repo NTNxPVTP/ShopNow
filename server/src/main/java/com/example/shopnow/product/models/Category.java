@@ -1,19 +1,9 @@
 package com.example.shopnow.product.models;
 
-import java.util.List;
-
+import java.util.Set;
 import com.example.shopnow.shared.BaseEntity;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Getter
@@ -24,11 +14,6 @@ import lombok.Setter;
 public class Category extends BaseEntity {
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "product_categories",
-        joinColumns = @JoinColumn(name = "category_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private List<Product> products;
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "categories")
+    private Set<Product> products;
 }
