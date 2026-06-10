@@ -6,15 +6,15 @@ import org.springframework.stereotype.Service;
 
 import com.example.shopnow.security.rest.dto.AuthenticationRequest;
 import com.example.shopnow.security.rest.dto.AuthenticationResponse;
-import com.example.shopnow.user.UserRepository;
-import com.example.shopnow.user.UserService;
+import com.example.shopnow.user.api.AuthenticatedUser;
+import com.example.shopnow.user.api.UserApi;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
 public class AuthenticationService {
-    private final UserService userService;
+    private final UserApi userService;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final TokenService tokenService;
@@ -23,9 +23,7 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password()));
-        var user = userService.findByEmail(request.email()).orElseThrow();
-        System.out.println(user);
-        System.out.println("user here:");
+        AuthenticatedUser user = userService.findByEmail(request.email()).orElseThrow();
 
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);

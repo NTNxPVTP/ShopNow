@@ -10,7 +10,7 @@ import java.util.List;
 import com.example.shopnow.product.CategoryService;
 import com.example.shopnow.product.rest.dto.CategoryResponse;
 import com.example.shopnow.product.rest.dto.CreateCategoryRequest;
-import com.example.shopnow.user.models.User;
+import com.example.shopnow.user.api.AuthenticatedUser;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class CategoryController {
 
     @PreAuthorize("hasRole('ADMIN')") // Only allow users with ADMIN role to create categories
     @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(@RequestBody @Valid CreateCategoryRequest request, @AuthenticationPrincipal User user
+    public ResponseEntity<CategoryResponse> createCategory(@RequestBody @Valid CreateCategoryRequest request, @AuthenticationPrincipal AuthenticatedUser user
     ) {
         System.out.println("Authenticated user: " + user.getUsername() + ", Role: " + user.getRole());
         return ResponseEntity.ok(categoryService.createCategory(request));

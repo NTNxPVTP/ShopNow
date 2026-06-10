@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.shopnow.exception.DomainException;
 import com.example.shopnow.exception.ErrorCode;
-import com.example.shopnow.order.rest.dto.OrderItemRequest;
+import com.example.shopnow.product.api.ProductApi;
+import com.example.shopnow.product.api.dto.OrderLineRequest;
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
 import com.example.shopnow.product.models.Category;
 import com.example.shopnow.product.models.Product;
@@ -19,13 +20,13 @@ import com.example.shopnow.product.rest.dto.CreateProductRequest;
 import com.example.shopnow.product.rest.dto.ProductDetailResponse;
 import com.example.shopnow.product.rest.dto.UpdateProductRequest;
 import com.example.shopnow.shared.PageResponse;
-import com.example.shopnow.user.models.User;
+import com.example.shopnow.user.api.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional(readOnly = true, rollbackFor = Exception.class)
 @RequiredArgsConstructor
-public class ProductService {
+public class ProductServiceImpl implements ProductApi {
 
     private final ProductRepository productRepository;
     private final ShopRepository shopRepository;
@@ -41,7 +42,7 @@ public class ProductService {
 
     // has not have shop owner, category,... yet
     @Transactional
-    public ProductDetailResponse createProduct(CreateProductRequest request, User owner) {
+    public ProductDetailResponse createProduct(CreateProductRequest request, AuthenticatedUser owner) {
         Product product = productMapper.fromCreateRequestToProduct(request);
         Shop shop = shopRepository.findById(request.shopId())
                 .orElseThrow(() -> new DomainException(ErrorCode.SHOP_NOT_FOUND));
@@ -68,7 +69,7 @@ public class ProductService {
     // TODO:
     // business logic: if product is in order, set status = INACTIVE, else delete
     @Transactional
-    public String deleteProduct(UUID id, User owner) {
+    public String deleteProduct(UUID id, AuthenticatedUser owner) {
         UUID shopOwnerId = owner.getId();
         if (shopOwnerId == null) {
             throw new DomainException(ErrorCode.USER_NOT_FOUND);
@@ -81,7 +82,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductDetailResponse updateProduct(UpdateProductRequest request, UUID produdctId, User owner) {
+    public ProductDetailResponse updateProduct(UpdateProductRequest request, UUID produdctId, AuthenticatedUser owner) {
         UUID shopOwnerId = owner.getId();
         Product product = productRepository.findWithShopById(produdctId)
                 .orElseThrow(() -> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -124,18 +125,19 @@ public class ProductService {
         return products;
     }
 
+    @Override
     @Transactional
-    public List<ProductInfoForOrder> decreaseProducts(List<OrderItemRequest> itemRequests) {
-        List<UUID> ids = itemRequests.stream()
-                .map(OrderItemRequest::productId)
+    public List<ProductInfoForOrder> decreaseProducts(List<OrderLineRequest> lines) {
+        List<UUID> ids = lines.stream()
+                .map(OrderLineRequest::productId)
                 .toList();
         List<Product> products = getProducts(ids);
 
-        if (products.size() < itemRequests.size()) {
+        if (products.size() < lines.size()) {
             throw new DomainException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        for (OrderItemRequest req : itemRequests) {
+        for (OrderLineRequest req : lines) {
             int success = productRepository.decreaseQuantity(req.productId(), req.quantity());
             if (success == 0) {
                 throw new DomainException(ErrorCode.PRODUCT_OUT_OF_STOCK);

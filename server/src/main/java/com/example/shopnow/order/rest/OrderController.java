@@ -13,7 +13,7 @@ import com.example.shopnow.order.rest.dto.CreateOrderRequest;
 import com.example.shopnow.order.rest.dto.OrderDTO;
 import com.example.shopnow.order.rest.dto.OrderSummaryDTO;
 import com.example.shopnow.shared.PageResponse;
-import com.example.shopnow.user.models.User;
+import com.example.shopnow.user.api.AuthenticatedUser;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class OrderController {
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false) OrderStatus status,
             @RequestParam(required = false) UUID shopId,
-            @AuthenticationPrincipal User viewer
+            @AuthenticationPrincipal AuthenticatedUser viewer
         ) {
         Pageable pageable = PageRequest.of(page-1, 10, Sort.by("createdAt").descending());
         return ResponseEntity.ok(service.getOrders(pageable, viewer, status, shopId));
@@ -38,13 +38,13 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderDetail(
             @PathVariable UUID id,
-            @AuthenticationPrincipal User viewer
+            @AuthenticationPrincipal AuthenticatedUser viewer
         ) {
         return ResponseEntity.ok(service.getOrderDetail(id,viewer));
     }
 
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody CreateOrderRequest request, @AuthenticationPrincipal User buyer) {
+    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody CreateOrderRequest request, @AuthenticationPrincipal AuthenticatedUser buyer) {
         return ResponseEntity.ok(service.createOrder(request, buyer));
     }
 

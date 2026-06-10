@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.example.shopnow.shared.BaseEntity;
+import com.example.shopnow.user.api.AuthenticatedUser;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +19,7 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-public class User extends BaseEntity implements UserDetails {
+public class User extends BaseEntity implements UserDetails, AuthenticatedUser {
     private String name;
     private String email;
     private String password;
@@ -60,5 +61,10 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getRole() {
+        return role.name();
     }
 }

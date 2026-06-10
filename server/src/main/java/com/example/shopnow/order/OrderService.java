@@ -16,11 +16,11 @@ import com.example.shopnow.order.models.*;
 import com.example.shopnow.order.specification.OrderSpecification;
 import com.example.shopnow.order.specification.SubOrderSpecification;
 import com.example.shopnow.order.rest.dto.*;
-import com.example.shopnow.product.ProductService;
+import com.example.shopnow.product.api.ProductApi;
+import com.example.shopnow.product.api.dto.OrderLineRequest;
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
 import com.example.shopnow.shared.PageResponse;
-import com.example.shopnow.user.models.Role;
-import com.example.shopnow.user.models.User;
+import com.example.shopnow.user.api.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,23 +31,21 @@ public class OrderService {
     private final SubOrderRepository subOrderRepository;
     private final OrderMapper orderMapper;
     private final SubOrderMapper subOrderMapper;
-    private final ProductService productService;
+    private final ProductApi productApi;
 
     // has not check permission
-    public OrderDTO getOrderDetail(UUID id, User viewer) {
+    public OrderDTO getOrderDetail(UUID id, AuthenticatedUser viewer) {
 
         Order order = orderRepository.findWithDetailById(id)
                 .orElseThrow(() -> new DomainException(ErrorCode.ORDER_NOT_FOUND));
 
         if (!order.getCustomerId().equals(viewer.getId())) {
-            System.out.println(order.getCustomerId());
-            System.out.println(viewer.getId());
             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
         }
         return orderMapper.toDto(order);
     }
 
-    public PageResponse<OrderSummaryDTO> getOrders(Pageable pageable, User customer, OrderStatus status, UUID shopId) {
+    public PageResponse<OrderSummaryDTO> getOrders(Pageable pageable, AuthenticatedUser customer, OrderStatus status, UUID shopId) {
         if (customer == null || customer.getId() == null) {
             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
         }
@@ -63,14 +61,14 @@ public class OrderService {
         return orderMapper.toSummaryPageResponse(orders);
     }
 
-    public SubOrderDTO getSubOrderDetail(UUID id, User viewer) {
+    public SubOrderDTO getSubOrderDetail(UUID id, AuthenticatedUser viewer) {
         if (viewer == null || viewer.getRole() == null || viewer.getId() == null) {
             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
         }
 
         SubOrder subOrder;
 
-        if (!viewer.getRole().equals(Role.SELLER)) {
+        if (!viewer.getRole().equals("SELLER")) {
             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
         }
 
@@ -80,7 +78,7 @@ public class OrderService {
         return subOrderMapper.toDto(subOrder);
     }
 
-    public PageResponse<SubOrderSummaryDTO> getSubOrders(Pageable pageable, User viewer, OrderStatus status,
+    public PageResponse<SubOrderSummaryDTO> getSubOrders(Pageable pageable, AuthenticatedUser viewer, OrderStatus status,
             UUID shopId) {
         if (viewer == null || viewer.getRole() == null || viewer.getId() == null) {
             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
@@ -88,7 +86,7 @@ public class OrderService {
 
         Page<SubOrder> subOrders;
 
-        if (!viewer.getRole().equals(Role.SELLER)) {
+        if (!viewer.getRole().equals("SELLER")) {
             throw new DomainException(ErrorCode.ORDER_ACCESS_DENIED);
         }
 
@@ -107,12 +105,15 @@ public class OrderService {
     // has not set the payment method
     // has not insert batching
     @Transactional
-    public OrderDTO createOrder(CreateOrderRequest request, User buyer) {
+    public OrderDTO createOrder(CreateOrderRequest request, AuthenticatedUser buyer) {
         UUID buyerId = buyer.getId();
         List<OrderItemRequest> itemRequests = request.listItems();
 
         // decrease product and get product (Atomic Update)
-        List<ProductInfoForOrder> products = productService.decreaseProducts(itemRequests);
+        List<OrderLineRequest> orderLines = itemRequests.stream()
+                .map(item -> new OrderLineRequest(item.productId(), item.quantity()))
+                .toList();
+        List<ProductInfoForOrder> products = productApi.decreaseProducts(orderLines);
 
         // prepare map product
         Map<UUID, ProductInfoForOrder> productMap = products.stream()
@@ -133,8 +134,6 @@ public class OrderService {
             UUID shopId = entry.getKey();
             List<OrderItemRequest> shopItems = entry.getValue();
             UUID shopOwnerId = productMap.get(shopItems.get(0).productId()).shopOwnerId();
-            System.out.println("Shop owwner here: ");
-            System.out.println(shopOwnerId);
 
             BigDecimal subOrderTotal = BigDecimal.ZERO;
             Set<OrderDetail> details = new HashSet<>();
@@ -175,9 +174,6 @@ public class OrderService {
         parentOrder.setSubOrders(subOrders);
 
         parentOrder = orderRepository.save(parentOrder);
-        System.out.println("parentOrder herre: ");
-
-        System.out.println(parentOrder);
         return orderMapper.toDto(parentOrder);
     }
 

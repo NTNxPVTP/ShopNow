@@ -12,8 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.example.shopnow.user.UserRepository;
-import com.example.shopnow.user.UserService;
+import com.example.shopnow.user.api.UserApi;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,11 +21,11 @@ import lombok.RequiredArgsConstructor;
 @EnableJpaAuditing
 public class ApplicationConfig {
 
-    private final UserService userService;
+    private final UserApi userApi;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userService.findByEmail(username)
+        return username -> userApi.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 

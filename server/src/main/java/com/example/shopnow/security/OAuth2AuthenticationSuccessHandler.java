@@ -1,7 +1,6 @@
 package com.example.shopnow.security;
 
 import java.io.IOException;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -9,9 +8,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.example.shopnow.user.UserRepository;
-import com.example.shopnow.user.models.Role;
-import com.example.shopnow.user.models.User;
+import com.example.shopnow.user.api.AuthenticatedUser;
+import com.example.shopnow.user.api.UserApi;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +22,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final JwtService jwtService;
     private final TokenService tokenService;
-    private final UserRepository userRepository;
+    private final UserApi userApi;
 
     @Value("${application.security.oauth2.redirect-uri:http://localhost:3000/oauth2/redirect}")
     private String redirectUri;
@@ -41,16 +39,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             email = oAuth2User.getAttribute("login"); // GitHub fallback
         }
 
-        final String finalEmail = email;
-        User user = userRepository.findByEmail(email).orElseGet(() -> {
-            User newUser = User.builder()
-                    .email(finalEmail)
-                    .name(name)
-                    .role(Role.CUSTOMER) // Default role for OAuth users
-                    .password(UUID.randomUUID().toString()) // random placeholder password
-                    .build();
-            return userRepository.save(newUser);
-        });
+        AuthenticatedUser user = userApi.provisionOAuthUser(email, name);
 
         String jwtToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);

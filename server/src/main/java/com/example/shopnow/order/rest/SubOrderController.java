@@ -10,7 +10,7 @@ import com.example.shopnow.order.models.OrderStatus;
 import com.example.shopnow.order.rest.dto.SubOrderDTO;
 import com.example.shopnow.order.rest.dto.SubOrderSummaryDTO;
 import com.example.shopnow.shared.PageResponse;
-import com.example.shopnow.user.models.User;
+import com.example.shopnow.user.api.AuthenticatedUser;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +23,7 @@ public class SubOrderController {
     @GetMapping("/{id}")
     public ResponseEntity<SubOrderDTO> getSubOrderDetail(
         @PathVariable UUID id,
-        @AuthenticationPrincipal User viewer
+        @AuthenticationPrincipal AuthenticatedUser viewer
     ){
         System.out.println("Call service here: ");
         return ResponseEntity.ok(service.getSubOrderDetail(id, viewer));
@@ -31,7 +31,7 @@ public class SubOrderController {
 
     @GetMapping
     public ResponseEntity<PageResponse<SubOrderSummaryDTO>> getSubOrders(
-        @AuthenticationPrincipal User viewer,
+        @AuthenticationPrincipal AuthenticatedUser viewer,
         @RequestParam(required = false, defaultValue = "1") int page,
         @RequestParam(required = false) OrderStatus status,
         @RequestParam(required = false) UUID shopId
