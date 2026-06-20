@@ -38,13 +38,15 @@ import com.example.shopnow.exception.DomainException;
 import com.example.shopnow.exception.ErrorCode;
 import com.example.shopnow.product.api.dto.OrderLineRequest;
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
-import com.example.shopnow.product.models.Category;
-import com.example.shopnow.product.models.Product;
-import com.example.shopnow.product.models.ProductStatus;
-import com.example.shopnow.product.models.Shop;
-import com.example.shopnow.product.rest.dto.CreateProductRequest;
-import com.example.shopnow.product.rest.dto.ProductDetailResponse;
-import com.example.shopnow.product.rest.dto.UpdateProductRequest;
+import com.example.shopnow.product.domain.repository.ProductRepository;
+import com.example.shopnow.product.infrastructure.persistence.ProductJpaRepository;
+import com.example.shopnow.product.application.dto.CreateProductRequest;
+import com.example.shopnow.product.application.dto.ProductDetailResponse;
+import com.example.shopnow.product.application.dto.UpdateProductRequest;
+import com.example.shopnow.product.domain.models.Category;
+import com.example.shopnow.product.domain.models.Product;
+import com.example.shopnow.product.domain.models.ProductStatus;
+import com.example.shopnow.product.domain.models.Shop;
 import com.example.shopnow.shared.PageInfo;
 import com.example.shopnow.shared.PageResponse;
 import com.example.shopnow.user.api.AuthenticatedUser;
@@ -70,6 +72,9 @@ class ProductServiceImplTest {
     private ProductRepository productRepository;
 
     @Mock
+    private ProductJpaRepository productJpaRepository;
+
+    @Mock
     private ShopRepository shopRepository;
 
     @Mock
@@ -78,8 +83,19 @@ class ProductServiceImplTest {
     @Mock
     private ProductMapper productMapper;
 
-    @InjectMocks
     private ProductServiceImpl productService;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        // decreaseProducts delegates to DecreaseStockUseCase (task 8.3); wire a
+        // real use case from the same mocks so the existing decreaseProducts
+        // tests keep exercising the identical logic through productRepository /
+        // productMapper stubs. The other collaborators are injected directly.
+        productService = new ProductServiceImpl(
+                productRepository, productJpaRepository, shopRepository, categoryRepository, productMapper,
+                new com.example.shopnow.product.application.usecases.DecreaseStockUseCase(
+                        productRepository, productMapper));
+    }
 
     // ---------- Shared fixture helpers ----------
 
@@ -167,7 +183,7 @@ class ProductServiceImplTest {
             Product product = sampleProduct(productId);
             ProductDetailResponse expected = detailResponse(productId, shopId, Set.of());
 
-            when(productRepository.findByIdAndStatusAndIsDeletedFalse(productId, ProductStatus.ACTIVE))
+            when(productRepository.findActiveById(productId))
                     .thenReturn(Optional.of(product));
             when(productMapper.toDto(product)).thenReturn(expected);
 
@@ -184,7 +200,7 @@ class ProductServiceImplTest {
         void throwsProductNotFound_whenAbsent() {
             // Arrange
             UUID productId = UUID.randomUUID();
-            when(productRepository.findByIdAndStatusAndIsDeletedFalse(productId, ProductStatus.ACTIVE))
+            when(productRepository.findActiveById(productId))
                     .thenReturn(Optional.empty());
 
             // Act & Assert
@@ -462,7 +478,7 @@ class ProductServiceImplTest {
                     .extracting(ex -> ((DomainException) ex).getErrorCode())
                     .isEqualTo(ErrorCode.USER_NOT_FOUND);
 
-            verify(productRepository, never()).softDeleteProductByIdAndShopOwnerId(any(), any());
+            verify(productRepository, never()).softDelete(any(), any());
         }
 
         @Test
@@ -472,7 +488,7 @@ class ProductServiceImplTest {
             UUID productId = UUID.randomUUID();
             UUID ownerId = UUID.randomUUID();
             AuthenticatedUser owner = ownerWithId(ownerId);
-            when(productRepository.softDeleteProductByIdAndShopOwnerId(productId, ownerId)).thenReturn(0);
+            when(productRepository.softDelete(productId, ownerId)).thenReturn(0);
 
             // Act & Assert
             assertThatThrownBy(() -> productService.deleteProduct(productId, owner))
@@ -488,7 +504,7 @@ class ProductServiceImplTest {
             UUID productId = UUID.randomUUID();
             UUID ownerId = UUID.randomUUID();
             AuthenticatedUser owner = ownerWithId(ownerId);
-            when(productRepository.softDeleteProductByIdAndShopOwnerId(productId, ownerId)).thenReturn(1);
+            when(productRepository.softDelete(productId, ownerId)).thenReturn(1);
 
             // Act
             String result = productService.deleteProduct(productId, owner);
@@ -635,7 +651,7 @@ class ProductServiceImplTest {
                             .pageNumber(0).pageSize(10).totalPages(1).isLast(true).totalElements(1)
                             .build());
 
-            when(productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
+            when(productJpaRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
             when(productMapper.toPageResponse(page)).thenReturn(expected);
 
             // Act
@@ -644,7 +660,7 @@ class ProductServiceImplTest {
 
             // Assert
             assertThat(actual).isSameAs(expected);
-            verify(productRepository).findAll(any(Specification.class), eq(pageable));
+            verify(productJpaRepository).findAll(any(Specification.class), eq(pageable));
             verify(productMapper).toPageResponse(page);
         }
 
@@ -661,7 +677,7 @@ class ProductServiceImplTest {
                             .pageNumber(0).pageSize(10).totalPages(1).isLast(true).totalElements(1)
                             .build());
 
-            when(productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
+            when(productJpaRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
             when(productMapper.toPageResponse(page)).thenReturn(expected);
 
             // Act
@@ -670,7 +686,7 @@ class ProductServiceImplTest {
 
             // Assert
             assertThat(actual).isSameAs(expected);
-            verify(productRepository).findAll(any(Specification.class), eq(pageable));
+            verify(productJpaRepository).findAll(any(Specification.class), eq(pageable));
             verify(productMapper).toPageResponse(page);
         }
     }
@@ -695,8 +711,7 @@ class ProductServiceImplTest {
 
             // chỉ tìm được 1 product cho 2 dòng
             List<Product> found = List.of(sampleProduct(id1));
-            when(productRepository.findAllWithShopByStatusAndIsDeletedFalseAndIdIn(
-                    eq(ProductStatus.ACTIVE), any())).thenReturn(found);
+            when(productRepository.findActiveWithShopByIds(any())).thenReturn(found);
 
             // Act & Assert
             assertThatThrownBy(() -> productService.decreaseProducts(lines))
@@ -716,8 +731,7 @@ class ProductServiceImplTest {
             List<OrderLineRequest> lines = List.of(line(id1, 1), line(id2, 2));
 
             List<Product> found = List.of(sampleProduct(id1), sampleProduct(id2));
-            when(productRepository.findAllWithShopByStatusAndIsDeletedFalseAndIdIn(
-                    eq(ProductStatus.ACTIVE), any())).thenReturn(found);
+            when(productRepository.findActiveWithShopByIds(any())).thenReturn(found);
             when(productRepository.decreaseQuantity(id1, 1)).thenReturn(1);
             when(productRepository.decreaseQuantity(id2, 2)).thenReturn(0);
 
@@ -745,8 +759,7 @@ class ProductServiceImplTest {
                     new ProductInfoForOrder(id2, new BigDecimal("49.99"), "P2", 2,
                             UUID.randomUUID(), UUID.randomUUID()));
 
-            when(productRepository.findAllWithShopByStatusAndIsDeletedFalseAndIdIn(
-                    eq(ProductStatus.ACTIVE), any())).thenReturn(found);
+            when(productRepository.findActiveWithShopByIds(any())).thenReturn(found);
             when(productRepository.decreaseQuantity(id1, 1)).thenReturn(1);
             when(productRepository.decreaseQuantity(id2, 2)).thenReturn(1);
             when(productMapper.toProductInfoForOrders(found)).thenReturn(expected);

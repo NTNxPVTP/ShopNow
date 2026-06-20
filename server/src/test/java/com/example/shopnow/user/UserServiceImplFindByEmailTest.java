@@ -5,14 +5,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.shopnow.user.api.AuthenticatedUser;
+import com.example.shopnow.user.application.usecases.ProvisionOAuthUserUseCase;
 import com.example.shopnow.user.models.Role;
 import com.example.shopnow.user.models.User;
 
@@ -34,8 +35,12 @@ class UserServiceImplFindByEmailTest {
     @Mock
     private UserRepository repository;
 
-    @InjectMocks
     private UserServiceImpl userService;
+
+    @BeforeEach
+    void setUp() {
+        userService = new UserServiceImpl(repository, new ProvisionOAuthUserUseCase(repository));
+    }
 
     @Test
     @DisplayName("findByEmail trả Optional chứa user dưới dạng AuthenticatedUser khi email tồn tại")

@@ -1,8 +1,8 @@
 package com.example.shopnow.order;
 
 import com.example.shopnow.order.mapper.SubOrderMapper;
-import com.example.shopnow.order.models.OrderStatus;
-import com.example.shopnow.order.models.SubOrder;
+import com.example.shopnow.order.domain.models.OrderStatus;
+import com.example.shopnow.order.domain.models.SubOrder;
 import com.example.shopnow.order.rest.dto.SubOrderSummaryDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;

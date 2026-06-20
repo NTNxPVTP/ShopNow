@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.shopnow.exception.DomainException;
 import com.example.shopnow.exception.ErrorCode;
-import com.example.shopnow.product.models.Category;
-import com.example.shopnow.product.rest.dto.CategoryResponse;
-import com.example.shopnow.product.rest.dto.CreateCategoryRequest;
+import com.example.shopnow.product.application.dto.CategoryResponse;
+import com.example.shopnow.product.application.dto.CreateCategoryRequest;
+import com.example.shopnow.product.domain.models.Category;
 
 import lombok.RequiredArgsConstructor;
 

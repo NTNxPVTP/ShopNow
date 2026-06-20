@@ -22,11 +22,15 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND("PRODUCT_004", "Category Not Found", "One or more requested categories do not exist", HttpStatus.NOT_FOUND),
     PRODUCT_ACCESS_DENIED("PRODUCT_005", "Access Denied", "You do not have permission to modify this product", HttpStatus.FORBIDDEN),
     CATEGORY_ALREADY_EXISTS("PRODUCT_006", "Category Already Exists", "The requested category name already exists", HttpStatus.BAD_REQUEST),
+    PRODUCT_INVALID_PRICE("PRODUCT_007", "Invalid Product Price", "The product price must not be null or negative", HttpStatus.BAD_REQUEST),
+    PRODUCT_INVALID_QUANTITY("PRODUCT_008", "Invalid Product Quantity", "The product quantity must be greater than zero", HttpStatus.BAD_REQUEST),
 
     // Order Errors
     ORDER_NOT_FOUND("ORDER_001", "Order Not Found", "The requested order does not exist", HttpStatus.NOT_FOUND),
     INSUFFICIENT_STOCK("ORDER_002", "Insufficient Stock", "The requested product quantity is not enough", HttpStatus.BAD_REQUEST),
     ORDER_ACCESS_DENIED("ORDER_003", "Access Denied", "You do not have permission to view this order", HttpStatus.FORBIDDEN),
+    ORDER_INVALID_TRANSITION("ORDER_004", "Invalid Order Transition", "The requested order status transition is not allowed", HttpStatus.BAD_REQUEST),
+    ORDER_INVALID_ITEMS("ORDER_005", "Invalid Order Items", "An order must contain at least one order line", HttpStatus.BAD_REQUEST),
     
     // Generic Erors
     

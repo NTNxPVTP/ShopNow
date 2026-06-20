@@ -30,7 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ProductSpecificationBug37ExplorationTest {
 
     private static final Path SOURCE_FILE = Paths.get("src", "main", "java",
-            "com", "example", "shopnow", "product", "ProductSpecification.java");
+            "com", "example", "shopnow", "product", "infrastructure", "persistence",
+            "ProductSpecification.java");
 
     @Test
     @DisplayName("BUG-37: hasNameLike SHALL escape '%' wildcard character before LIKE predicate")

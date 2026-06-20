@@ -1,6 +1,6 @@
 package com.example.shopnow.product;
 
-import com.example.shopnow.product.models.Shop;
+import com.example.shopnow.product.domain.models.Shop;
 import jakarta.persistence.OneToMany;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

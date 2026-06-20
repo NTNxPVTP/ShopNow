@@ -3,7 +3,7 @@ package com.example.shopnow.order.rest.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.example.shopnow.order.models.OrderStatus;
+import com.example.shopnow.order.domain.models.OrderStatus;
 
 public record SubOrderSummaryDTO(
     UUID id,

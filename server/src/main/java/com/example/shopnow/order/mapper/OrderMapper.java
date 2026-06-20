@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.data.domain.Page;
 
-import com.example.shopnow.order.models.Order;
+import com.example.shopnow.order.domain.models.Order;
 import com.example.shopnow.order.rest.dto.CreateOrderRequest;
 import com.example.shopnow.order.rest.dto.OrderDTO;
 import com.example.shopnow.order.rest.dto.OrderSummaryDTO;

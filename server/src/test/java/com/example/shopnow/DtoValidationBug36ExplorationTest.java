@@ -1,7 +1,7 @@
 package com.example.shopnow;
 
 import com.example.shopnow.order.rest.dto.OrderItemRequest;
-import com.example.shopnow.product.rest.dto.CreateProductRequest;
+import com.example.shopnow.product.application.dto.CreateProductRequest;
 import com.example.shopnow.security.rest.dto.AuthenticationRequest;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;

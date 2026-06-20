@@ -2,11 +2,13 @@ package com.example.shopnow.product;
 
 import com.example.shopnow.exception.DomainException;
 import com.example.shopnow.exception.ErrorCode;
-import com.example.shopnow.product.models.Product;
-import com.example.shopnow.product.models.ProductStatus;
-import com.example.shopnow.product.models.Shop;
-import com.example.shopnow.product.rest.dto.CreateProductRequest;
-import com.example.shopnow.product.rest.dto.ProductDetailResponse;
+import com.example.shopnow.product.domain.repository.ProductRepository;
+import com.example.shopnow.product.infrastructure.persistence.ProductJpaRepository;
+import com.example.shopnow.product.application.dto.CreateProductRequest;
+import com.example.shopnow.product.application.dto.ProductDetailResponse;
+import com.example.shopnow.product.domain.models.Product;
+import com.example.shopnow.product.domain.models.ProductStatus;
+import com.example.shopnow.product.domain.models.Shop;
 import com.example.shopnow.user.models.Role;
 import com.example.shopnow.user.models.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,6 +81,7 @@ import static org.mockito.Mockito.when;
 class ProductServiceBug24ExplorationTest {
 
     private ProductRepository productRepository;
+    private ProductJpaRepository productJpaRepository;
     private ShopRepository shopRepository;
     private CategoryRepository categoryRepository;
     private ProductMapper productMapper;
@@ -88,12 +91,15 @@ class ProductServiceBug24ExplorationTest {
     @BeforeEach
     void setUp() {
         productRepository = Mockito.mock(ProductRepository.class);
+        productJpaRepository = Mockito.mock(ProductJpaRepository.class);
         shopRepository = Mockito.mock(ShopRepository.class);
         categoryRepository = Mockito.mock(CategoryRepository.class);
         productMapper = Mockito.mock(ProductMapper.class);
 
         productService = new ProductServiceImpl(
-                productRepository, shopRepository, categoryRepository, productMapper);
+                productRepository, productJpaRepository, shopRepository, categoryRepository, productMapper,
+                new com.example.shopnow.product.application.usecases.DecreaseStockUseCase(
+                        productRepository, productMapper));
     }
 
     /**

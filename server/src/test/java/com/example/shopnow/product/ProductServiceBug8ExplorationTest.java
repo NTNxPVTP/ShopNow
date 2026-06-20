@@ -5,9 +5,11 @@ import com.example.shopnow.exception.ErrorCode;
 import com.example.shopnow.order.rest.dto.OrderItemRequest;
 import com.example.shopnow.product.api.dto.OrderLineRequest;
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
-import com.example.shopnow.product.models.Product;
-import com.example.shopnow.product.models.ProductStatus;
-import com.example.shopnow.product.models.Shop;
+import com.example.shopnow.product.domain.repository.ProductRepository;
+import com.example.shopnow.product.infrastructure.persistence.ProductJpaRepository;
+import com.example.shopnow.product.domain.models.Product;
+import com.example.shopnow.product.domain.models.ProductStatus;
+import com.example.shopnow.product.domain.models.Shop;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -92,6 +94,7 @@ import static org.mockito.Mockito.when;
 class ProductServiceBug8ExplorationTest {
 
     private ProductRepository productRepository;
+    private ProductJpaRepository productJpaRepository;
     private ShopRepository shopRepository;
     private CategoryRepository categoryRepository;
     private ProductMapper productMapper;
@@ -101,12 +104,15 @@ class ProductServiceBug8ExplorationTest {
     @BeforeEach
     void setUp() {
         productRepository = Mockito.mock(ProductRepository.class);
+        productJpaRepository = Mockito.mock(ProductJpaRepository.class);
         shopRepository = Mockito.mock(ShopRepository.class);
         categoryRepository = Mockito.mock(CategoryRepository.class);
         productMapper = Mockito.mock(ProductMapper.class);
 
         productService = new ProductServiceImpl(
-                productRepository, shopRepository, categoryRepository, productMapper);
+                productRepository, productJpaRepository, shopRepository, categoryRepository, productMapper,
+                new com.example.shopnow.product.application.usecases.DecreaseStockUseCase(
+                        productRepository, productMapper));
 
         // decreaseQuantity is mocked to "succeed" so the test focuses solely
         // on the size-comparison check that triggers PRODUCT_NOT_FOUND. Any
@@ -198,8 +204,7 @@ class ProductServiceBug8ExplorationTest {
         productInfos.add(duplicatedInfo);
         productInfos.addAll(distinctExtraInfos);
 
-        when(productRepository.findAllWithShopByStatusAndIsDeletedFalseAndIdIn(
-                eq(ProductStatus.ACTIVE), ArgumentMatchers.<List<UUID>>any()))
+        when(productRepository.findActiveWithShopByIds(ArgumentMatchers.<List<UUID>>any()))
                 .thenReturn(productsFromDb);
         lenient().when(productMapper.toProductInfoForOrders(anyList())).thenReturn(productInfos);
 

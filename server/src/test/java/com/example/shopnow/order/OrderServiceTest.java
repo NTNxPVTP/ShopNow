@@ -33,11 +33,15 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.shopnow.exception.DomainException;
 import com.example.shopnow.exception.ErrorCode;
+import com.example.shopnow.order.domain.repository.OrderRepository;
+import com.example.shopnow.order.domain.repository.SubOrderRepository;
+import com.example.shopnow.order.infrastructure.persistence.OrderJpaRepository;
+import com.example.shopnow.order.infrastructure.persistence.SubOrderJpaRepository;
 import com.example.shopnow.order.mapper.OrderMapper;
 import com.example.shopnow.order.mapper.SubOrderMapper;
-import com.example.shopnow.order.models.Order;
-import com.example.shopnow.order.models.OrderStatus;
-import com.example.shopnow.order.models.SubOrder;
+import com.example.shopnow.order.domain.models.Order;
+import com.example.shopnow.order.domain.models.OrderStatus;
+import com.example.shopnow.order.domain.models.SubOrder;
 import com.example.shopnow.order.rest.dto.OrderDTO;
 import com.example.shopnow.order.rest.dto.OrderSummaryDTO;
 import com.example.shopnow.order.rest.dto.SubOrderDTO;
@@ -72,6 +76,10 @@ class OrderServiceTest {
     @Mock
     private SubOrderRepository subOrderRepository;
     @Mock
+    private OrderJpaRepository orderJpaRepository;
+    @Mock
+    private SubOrderJpaRepository subOrderJpaRepository;
+    @Mock
     private OrderMapper orderMapper;
     @Mock
     private SubOrderMapper subOrderMapper;
@@ -87,7 +95,7 @@ class OrderServiceTest {
 
     /** Tạo Order với id và customerId được set qua reflection (BaseEntity.id là @GeneratedValue). */
     private static Order orderWithCustomer(UUID orderId, UUID customerId) {
-        Order order = new Order();
+        Order order = Order.builder().build();
         ReflectionTestUtils.setField(order, "id", orderId);
         order.setCustomerId(customerId);
         return order;
@@ -223,7 +231,7 @@ class OrderServiceTest {
 
             Page<Order> page = new PageImpl<>(List.of(orderWithCustomer(UUID.randomUUID(), customerId)),
                     pageable, 1);
-            when(orderRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
+            when(orderJpaRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
 
             PageResponse<OrderSummaryDTO> expected = new PageResponse<>(
                     List.of(),
@@ -237,7 +245,7 @@ class OrderServiceTest {
 
             // Assert
             assertThat(result).isSameAs(expected);
-            verify(orderRepository).findAll(any(Specification.class), eq(pageable));
+            verify(orderJpaRepository).findAll(any(Specification.class), eq(pageable));
             verify(orderMapper).toSummaryPageResponse(page);
         }
     }
@@ -330,7 +338,7 @@ class OrderServiceTest {
             UUID subOrderId = UUID.randomUUID();
             AuthenticatedUser viewer = sellerWithId(viewerId);
 
-            SubOrder subOrder = new SubOrder();
+            SubOrder subOrder = SubOrder.builder().build();
             ReflectionTestUtils.setField(subOrder, "id", subOrderId);
             when(subOrderRepository.findWithDetailByIdAndShopOwnerId(subOrderId, viewerId))
                     .thenReturn(Optional.of(subOrder));
@@ -390,8 +398,8 @@ class OrderServiceTest {
             UUID shopId = UUID.randomUUID();
             AuthenticatedUser viewer = sellerWithId(viewerId);
 
-            Page<SubOrder> page = new PageImpl<>(List.of(new SubOrder()), pageable, 1);
-            when(subOrderRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
+            Page<SubOrder> page = new PageImpl<>(List.of(SubOrder.builder().build()), pageable, 1);
+            when(subOrderJpaRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
 
             PageResponse<SubOrderSummaryDTO> expected = new PageResponse<>(
                     List.of(),
@@ -403,7 +411,7 @@ class OrderServiceTest {
                     pageable, viewer, OrderStatus.IN_PROCESS, shopId);
 
             assertThat(result).isSameAs(expected);
-            verify(subOrderRepository).findAll(any(Specification.class), eq(pageable));
+            verify(subOrderJpaRepository).findAll(any(Specification.class), eq(pageable));
             verify(subOrderMapper).toSummaryPageResponse(page);
         }
     }
@@ -443,7 +451,7 @@ class OrderServiceTest {
                     new com.example.shopnow.product.api.dto.ProductInfoForOrder(
                             productId2, new java.math.BigDecimal("20.00"), "P2", 100, shopId, shopOwnerId));
             when(productApi.decreaseProducts(any())).thenReturn(productInfos);
-            when(orderMapper.fromRequestToOrder(request)).thenReturn(new Order());
+            when(orderMapper.fromRequestToOrder(request)).thenReturn(Order.builder().build());
             when(orderRepository.save(any(Order.class))).thenAnswer(inv -> inv.getArgument(0));
 
             OrderDTO dummyDto = new OrderDTO(UUID.randomUUID(), OrderStatus.IN_PROCESS,
@@ -509,7 +517,7 @@ class OrderServiceTest {
                     new com.example.shopnow.product.api.dto.ProductInfoForOrder(
                             prodB2, new java.math.BigDecimal("5.00"), "PB2", 100, shopB, ownerB));
             when(productApi.decreaseProducts(any())).thenReturn(productInfos);
-            when(orderMapper.fromRequestToOrder(request)).thenReturn(new Order());
+            when(orderMapper.fromRequestToOrder(request)).thenReturn(Order.builder().build());
             when(orderRepository.save(any(Order.class))).thenAnswer(inv -> inv.getArgument(0));
 
             OrderDTO dummyDto = new OrderDTO(UUID.randomUUID(), OrderStatus.IN_PROCESS,

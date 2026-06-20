@@ -21,11 +21,13 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.shopnow.exception.DomainException;
 import com.example.shopnow.exception.ErrorCode;
-import com.example.shopnow.product.models.Product;
-import com.example.shopnow.product.models.ProductStatus;
-import com.example.shopnow.product.models.Shop;
-import com.example.shopnow.product.rest.dto.CreateProductRequest;
-import com.example.shopnow.product.rest.dto.ProductDetailResponse;
+import com.example.shopnow.product.domain.repository.ProductRepository;
+import com.example.shopnow.product.infrastructure.persistence.ProductJpaRepository;
+import com.example.shopnow.product.application.dto.CreateProductRequest;
+import com.example.shopnow.product.application.dto.ProductDetailResponse;
+import com.example.shopnow.product.domain.models.Product;
+import com.example.shopnow.product.domain.models.ProductStatus;
+import com.example.shopnow.product.domain.models.Shop;
 import com.example.shopnow.user.api.AuthenticatedUser;
 
 /**
@@ -50,6 +52,7 @@ import com.example.shopnow.user.api.AuthenticatedUser;
 class ProductServiceOwnershipTest {
 
     private ProductRepository productRepository;
+    private ProductJpaRepository productJpaRepository;
     private ShopRepository shopRepository;
     private CategoryRepository categoryRepository;
     private ProductMapper productMapper;
@@ -59,12 +62,15 @@ class ProductServiceOwnershipTest {
     @BeforeEach
     void setUp() {
         productRepository = Mockito.mock(ProductRepository.class);
+        productJpaRepository = Mockito.mock(ProductJpaRepository.class);
         shopRepository = Mockito.mock(ShopRepository.class);
         categoryRepository = Mockito.mock(CategoryRepository.class);
         productMapper = Mockito.mock(ProductMapper.class);
 
         productService = new ProductServiceImpl(
-                productRepository, shopRepository, categoryRepository, productMapper);
+                productRepository, productJpaRepository, shopRepository, categoryRepository, productMapper,
+                new com.example.shopnow.product.application.usecases.DecreaseStockUseCase(
+                        productRepository, productMapper));
     }
 
     @Test
@@ -181,7 +187,7 @@ class ProductServiceOwnershipTest {
                 .extracting(ex -> ((DomainException) ex).getErrorCode())
                 .isEqualTo(ErrorCode.USER_NOT_FOUND);
 
-        verify(productRepository, never()).softDeleteProductByIdAndShopOwnerId(any(UUID.class), any(UUID.class));
+        verify(productRepository, never()).softDelete(any(UUID.class), any(UUID.class));
     }
 
     @Test
@@ -195,7 +201,7 @@ class ProductServiceOwnershipTest {
         when(owner.getId()).thenReturn(ownerId);
 
         // softDelete trả về 0 dòng bị ảnh hưởng => không sở hữu sản phẩm.
-        when(productRepository.softDeleteProductByIdAndShopOwnerId(productId, ownerId)).thenReturn(0);
+        when(productRepository.softDelete(productId, ownerId)).thenReturn(0);
 
         // --- Act & Assert ---
         assertThatThrownBy(() -> productService.deleteProduct(productId, owner))

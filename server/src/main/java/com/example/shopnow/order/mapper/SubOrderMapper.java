@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 
-import com.example.shopnow.order.models.SubOrder;
+import com.example.shopnow.order.domain.models.SubOrder;
 import com.example.shopnow.order.rest.dto.SubOrderDTO;
 import com.example.shopnow.order.rest.dto.SubOrderSummaryDTO;
 import com.example.shopnow.shared.GenericMapper;

@@ -9,15 +9,16 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.shopnow.user.api.AuthenticatedUser;
+import com.example.shopnow.user.application.usecases.ProvisionOAuthUserUseCase;
 import com.example.shopnow.user.models.Role;
 import com.example.shopnow.user.models.User;
 
@@ -38,8 +39,14 @@ class UserServiceImplTest {
     @Mock
     private UserRepository repository;
 
-    @InjectMocks
     private UserServiceImpl userService;
+
+    @BeforeEach
+    void setUp() {
+        // provisionOAuthUser delegates to the use case, which orchestrates the
+        // same get-or-create logic against the (mocked) repository.
+        userService = new UserServiceImpl(repository, new ProvisionOAuthUserUseCase(repository));
+    }
 
     @Test
     @DisplayName("provisionOAuthUser tạo mới CUSTOMER khi email chưa tồn tại")

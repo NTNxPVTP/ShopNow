@@ -11,15 +11,15 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
-import com.example.shopnow.product.models.Category;
-import com.example.shopnow.product.models.Product;
-import com.example.shopnow.product.rest.dto.CreateProductRequest;
-import com.example.shopnow.product.rest.dto.ProductDetailResponse;
-import com.example.shopnow.product.rest.dto.UpdateProductRequest;
+import com.example.shopnow.product.application.dto.CreateProductRequest;
+import com.example.shopnow.product.application.dto.ProductDetailResponse;
+import com.example.shopnow.product.application.dto.UpdateProductRequest;
+import com.example.shopnow.product.domain.models.Category;
+import com.example.shopnow.product.domain.models.Product;
 import com.example.shopnow.shared.GenericMapper;
 
 @Mapper(componentModel = "spring")
-interface ProductMapper extends GenericMapper<Product, ProductDetailResponse> {
+public interface ProductMapper extends GenericMapper<Product, ProductDetailResponse> {
 
     @Mapping(target = "shopId", source = "shop.id")
     @Mapping(target = "categoryIds", expression = "java(mapCategoryIds(product.getCategories()))")

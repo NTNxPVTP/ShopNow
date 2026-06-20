@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import com.example.shopnow.product.CategoryService;
-import com.example.shopnow.product.rest.dto.CategoryResponse;
-import com.example.shopnow.product.rest.dto.CreateCategoryRequest;
+import com.example.shopnow.product.application.dto.CategoryResponse;
+import com.example.shopnow.product.application.dto.CreateCategoryRequest;
 import com.example.shopnow.user.api.AuthenticatedUser;
 
 import jakarta.validation.Valid;

@@ -12,13 +12,17 @@ import com.example.shopnow.exception.ErrorCode;
 import com.example.shopnow.product.api.ProductApi;
 import com.example.shopnow.product.api.dto.OrderLineRequest;
 import com.example.shopnow.product.api.dto.ProductInfoForOrder;
-import com.example.shopnow.product.models.Category;
-import com.example.shopnow.product.models.Product;
-import com.example.shopnow.product.models.ProductStatus;
-import com.example.shopnow.product.models.Shop;
-import com.example.shopnow.product.rest.dto.CreateProductRequest;
-import com.example.shopnow.product.rest.dto.ProductDetailResponse;
-import com.example.shopnow.product.rest.dto.UpdateProductRequest;
+import com.example.shopnow.product.application.dto.CreateProductRequest;
+import com.example.shopnow.product.application.dto.ProductDetailResponse;
+import com.example.shopnow.product.application.dto.UpdateProductRequest;
+import com.example.shopnow.product.application.usecases.DecreaseStockUseCase;
+import com.example.shopnow.product.domain.models.Category;
+import com.example.shopnow.product.domain.models.Product;
+import com.example.shopnow.product.domain.models.ProductStatus;
+import com.example.shopnow.product.domain.models.Shop;
+import com.example.shopnow.product.domain.repository.ProductRepository;
+import com.example.shopnow.product.infrastructure.persistence.ProductJpaRepository;
+import com.example.shopnow.product.infrastructure.persistence.ProductSpecification;
 import com.example.shopnow.shared.PageResponse;
 import com.example.shopnow.user.api.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
@@ -28,14 +32,25 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductApi {
 
+    // Domain driven port (technology-neutral): used for save / lookups / soft
+    // delete / atomic stock decrease.
     private final ProductRepository productRepository;
+    // Spring Data repository kept for the paged Specification read only. This
+    // paged read moves into ListProductsUseCase in a later task (8.2); until
+    // then ProductServiceImpl talks to it directly so paging behavior stays
+    // identical.
+    private final ProductJpaRepository productJpaRepository;
     private final ShopRepository shopRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
+    // Use case (driving port) standing behind ProductApi.decreaseProducts.
+    // decreaseProducts now delegates here so the stock-decrease logic lives in
+    // one place (task 8.3); the ProductApi contract stays unchanged.
+    private final DecreaseStockUseCase decreaseStockUseCase;
 
     public ProductDetailResponse viewDetailsOfProduct(UUID id) {
 
-        Product product = productRepository.findByIdAndStatusAndIsDeletedFalse(id, ProductStatus.ACTIVE)
+        Product product = productRepository.findActiveById(id)
                 .orElseThrow(() -> new DomainException(ErrorCode.PRODUCT_NOT_FOUND));
         return productMapper.toDto(product);
     }
@@ -74,7 +89,7 @@ public class ProductServiceImpl implements ProductApi {
         if (shopOwnerId == null) {
             throw new DomainException(ErrorCode.USER_NOT_FOUND);
         }
-        int check = productRepository.softDeleteProductByIdAndShopOwnerId(id, shopOwnerId);
+        int check = productRepository.softDelete(id, shopOwnerId);
         if (check == 0) {
             throw new DomainException(ErrorCode.PRODUCT_NOT_FOUND);
         }
@@ -115,36 +130,14 @@ public class ProductServiceImpl implements ProductApi {
             specification = specification.and(ProductSpecification.isInStock());
         }
 
-        Page<Product> products = productRepository.findAll(specification, pageable);
+        Page<Product> products = productJpaRepository.findAll(specification, pageable);
         return productMapper.toPageResponse(products);
-    }
-
-    private List<Product> getProducts(List<UUID> ids) {
-        List<Product> products = productRepository.findAllWithShopByStatusAndIsDeletedFalseAndIdIn(ProductStatus.ACTIVE,
-                ids);
-        return products;
     }
 
     @Override
     @Transactional
     public List<ProductInfoForOrder> decreaseProducts(List<OrderLineRequest> lines) {
-        List<UUID> ids = lines.stream()
-                .map(OrderLineRequest::productId)
-                .toList();
-        List<Product> products = getProducts(ids);
-
-        if (products.size() < lines.size()) {
-            throw new DomainException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
-
-        for (OrderLineRequest req : lines) {
-            int success = productRepository.decreaseQuantity(req.productId(), req.quantity());
-            if (success == 0) {
-                throw new DomainException(ErrorCode.PRODUCT_OUT_OF_STOCK);
-            }
-
-        }
-        return productMapper.toProductInfoForOrders(products);
+        return decreaseStockUseCase.execute(lines);
     }
 
     private Set<Category> resolveCategories(Set<UUID> categoryIds) {

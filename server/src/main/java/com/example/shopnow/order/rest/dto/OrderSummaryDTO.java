@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import com.example.shopnow.order.models.OrderStatus;
+import com.example.shopnow.order.domain.models.OrderStatus;
 
 public record OrderSummaryDTO(
     UUID id,

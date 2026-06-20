@@ -2,7 +2,11 @@ package com.example.shopnow.order;
 
 import com.example.shopnow.order.mapper.OrderMapper;
 import com.example.shopnow.order.mapper.SubOrderMapper;
-import com.example.shopnow.order.models.Order;
+import com.example.shopnow.order.domain.repository.OrderRepository;
+import com.example.shopnow.order.domain.repository.SubOrderRepository;
+import com.example.shopnow.order.infrastructure.persistence.OrderJpaRepository;
+import com.example.shopnow.order.infrastructure.persistence.SubOrderJpaRepository;
+import com.example.shopnow.order.domain.models.Order;
 import com.example.shopnow.order.rest.dto.CreateOrderRequest;
 import com.example.shopnow.order.rest.dto.OrderDTO;
 import com.example.shopnow.order.rest.dto.OrderItemRequest;
@@ -60,6 +64,10 @@ class OrderServiceMappingTest {
     @Mock
     private SubOrderRepository subOrderRepository;
     @Mock
+    private OrderJpaRepository orderJpaRepository;
+    @Mock
+    private SubOrderJpaRepository subOrderJpaRepository;
+    @Mock
     private OrderMapper orderMapper;
     @Mock
     private SubOrderMapper subOrderMapper;
@@ -107,7 +115,7 @@ class OrderServiceMappingTest {
                 new ProductInfoForOrder(productId3, new BigDecimal("30.00"), "P3", 100, shopId, shopOwnerId));
         when(productApi.decreaseProducts(anyList())).thenReturn(products);
 
-        when(orderMapper.fromRequestToOrder(request)).thenReturn(new Order());
+        when(orderMapper.fromRequestToOrder(request)).thenReturn(Order.builder().build());
         when(orderRepository.save(any(Order.class))).thenAnswer(inv -> inv.getArgument(0));
         OrderDTO dummyDto = new OrderDTO(
                 UUID.randomUUID(), null, BigDecimal.ZERO,

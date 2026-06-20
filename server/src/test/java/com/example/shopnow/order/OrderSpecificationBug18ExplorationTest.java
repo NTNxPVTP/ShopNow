@@ -1,7 +1,7 @@
 package com.example.shopnow.order;
 
-import com.example.shopnow.order.specification.OrderSpecification;
-import com.example.shopnow.product.ProductSpecification;
+import com.example.shopnow.order.infrastructure.persistence.OrderSpecification;
+import com.example.shopnow.product.infrastructure.persistence.ProductSpecification;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -47,9 +47,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OrderSpecificationBug18ExplorationTest {
 
     private static final Path ORDER_SPEC_PATH = Path.of(
-            "src/main/java/com/example/shopnow/order/specification/OrderSpecification.java");
+            "src/main/java/com/example/shopnow/order/infrastructure/persistence/OrderSpecification.java");
     private static final Path PRODUCT_SPEC_PATH = Path.of(
-            "src/main/java/com/example/shopnow/product/ProductSpecification.java");
+            "src/main/java/com/example/shopnow/product/infrastructure/persistence/ProductSpecification.java");
 
     /**
      * Asserts that OrderSpecification.hasShopId checks query.getResultType()
