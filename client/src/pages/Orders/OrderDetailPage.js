@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Table, Badge, Alert } from 'react-bootstrap';
+import { Card, Table, Badge, Alert, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { getOrderById } from '../../api/orderApi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
@@ -44,7 +45,14 @@ const OrderDetailPage = () => {
 
   return (
     <div>
-      <h2 className="mb-4">Chi tiết đơn hàng</h2>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>Chi tiết đơn hàng</h2>
+        {order.status !== 'PAID' && (
+          <Button as={Link} to={`/checkout/${order.id}`} variant="success" size="lg">
+            Thanh toán ngay
+          </Button>
+        )}
+      </div>
       <Card className="mb-4">
         <Card.Body>
           <p><strong>Mã đơn:</strong> {order.id}</p>

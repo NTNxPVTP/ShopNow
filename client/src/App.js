@@ -8,10 +8,12 @@ import RoleRoute from './components/RoleRoute';
 
 // Pages
 import LoginPage from './pages/Login/LoginPage';
+import RegisterPage from './pages/Login/RegisterPage';
 import ProductListPage from './pages/Products/ProductListPage';
 import ProductDetailPage from './pages/Products/ProductDetailPage';
 import CartPage from './pages/Cart/CartPage';
 import CheckoutPage from './pages/Checkout/CheckoutPage';
+import ProfilePage from './pages/Profile/ProfilePage';
 import OrderListPage from './pages/Orders/OrderListPage';
 import OrderDetailPage from './pages/Orders/OrderDetailPage';
 import SellerProductsPage from './pages/Seller/SellerProductsPage';
@@ -29,12 +31,14 @@ function App() {
             <Switch>
               {/* Public */}
               <Route exact path="/login" component={LoginPage} />
+              <Route exact path="/register" component={RegisterPage} />
               <Route exact path="/products" component={ProductListPage} />
               <Route exact path="/products/:id" component={ProductDetailPage} />
 
               {/* Protected - any authenticated user */}
               <ProtectedRoute exact path="/cart" component={CartPage} />
-              <ProtectedRoute exact path="/checkout" component={CheckoutPage} />
+              <ProtectedRoute exact path="/checkout/:orderId" component={CheckoutPage} />
+              <ProtectedRoute exact path="/profile" component={ProfilePage} />
 
               {/* Customer */}
               <RoleRoute exact path="/orders" roles={['CUSTOMER']} component={OrderListPage} />

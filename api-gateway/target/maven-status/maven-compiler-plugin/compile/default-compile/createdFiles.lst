@@ -1,0 +1,3 @@
+com\example\shopnow\ShopNowGatewayApplication.class
+com\example\shopnow\filter\AuthenticationFilter.class
+com\example\shopnow\util\JwtUtil.class

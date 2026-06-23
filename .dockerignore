@@ -1,0 +1,20 @@
+.git
+.gitignore
+.idea
+.vscode
+.mvn
+*.md
+docker-compose.yml
+
+# Maven
+**/target/
+!**/target/*.jar
+
+# Node
+**/node_modules/
+**/build/
+**/dist/
+**/.next/
+
+# Other
+*.log

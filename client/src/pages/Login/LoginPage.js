@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col } from 'react-bootstrap';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const LoginPage = () => {
@@ -70,6 +70,10 @@ const LoginPage = () => {
                   {loading ? 'Đang xử lý...' : 'Đăng nhập'}
                 </Button>
               </Form>
+              <div className="text-center mt-3">
+                <span className="text-muted">Chưa có tài khoản? </span>
+                <Link to="/register">Đăng ký ngay</Link>
+              </div>
             </Card.Body>
           </Card>
         </Col>

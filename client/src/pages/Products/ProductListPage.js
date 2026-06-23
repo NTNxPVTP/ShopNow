@@ -5,8 +5,12 @@ import { getProducts } from '../../api/productApi';
 import { getCategories } from '../../api/categoryApi';
 import Pagination from '../../components/Pagination';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { useAuth } from '../../contexts/AuthContext';
+import { useCart } from '../../contexts/CartContext';
 
 const ProductListPage = () => {
+  const { isAuthenticated, user } = useAuth();
+  const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
   const [pageInfo, setPageInfo] = useState({ number: 0, totalPages: 0 });
   const [categories, setCategories] = useState([]);
@@ -152,6 +156,21 @@ const ProductListPage = () => {
                   </small>
                 </Card.Text>
               </Card.Body>
+              {isAuthenticated && user?.role === 'CUSTOMER' && product.status === 'ACTIVE' && (
+                <Card.Footer className="bg-white border-top-0 pt-0">
+                  <Button 
+                    variant="outline-primary" 
+                    size="sm" 
+                    className="w-100"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      addToCart(product, 1);
+                    }}
+                  >
+                    Thêm vào giỏ
+                  </Button>
+                </Card.Footer>
+              )}
             </Card>
           </Col>
         ))}

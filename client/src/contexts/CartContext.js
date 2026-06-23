@@ -1,59 +1,8 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getCart, addItemToCart, updateCartItemQuantity, removeCartItem, clearCartApi } from '../api/cartApi';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext(null);
-
-const CART_STORAGE_KEY = 'shopnow_cart';
-
-const getInitialCart = () => {
-  try {
-    const stored = localStorage.getItem(CART_STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (err) {
-    // ignore
-  }
-  return { items: [] };
-};
-
-const calculateTotal = (items) => {
-  return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-};
-
-const cartReducer = (state, action) => {
-  let newItems;
-  switch (action.type) {
-    case 'ADD_TO_CART': {
-      const existing = state.items.find((item) => item.productId === action.payload.productId);
-      if (existing) {
-        newItems = state.items.map((item) =>
-          item.productId === action.payload.productId
-            ? { ...item, quantity: item.quantity + action.payload.quantity }
-            : item
-        );
-      } else {
-        newItems = [...state.items, action.payload];
-      }
-      return { ...state, items: newItems, totalPrice: calculateTotal(newItems) };
-    }
-    case 'UPDATE_QUANTITY': {
-      const qty = Math.max(1, action.payload.quantity);
-      newItems = state.items.map((item) =>
-        item.productId === action.payload.productId ? { ...item, quantity: qty } : item
-      );
-      return { ...state, items: newItems, totalPrice: calculateTotal(newItems) };
-    }
-    case 'REMOVE_FROM_CART': {
-      newItems = state.items.filter((item) => item.productId !== action.payload.productId);
-      return { ...state, items: newItems, totalPrice: calculateTotal(newItems) };
-    }
-    case 'CLEAR_CART': {
-      return { items: [], totalPrice: 0 };
-    }
-    default:
-      return state;
-  }
-};
 
 export const useCart = () => {
   const context = useContext(CartContext);
@@ -64,45 +13,78 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
-  const initialState = getInitialCart();
-  initialState.totalPrice = calculateTotal(initialState.items);
+  const { isAuthenticated } = useAuth();
+  const [items, setItems] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
 
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const fetchCart = async () => {
+    try {
+      if (!isAuthenticated) {
+        setItems([]);
+        setTotalPrice(0);
+        return;
+      }
+      const res = await getCart();
+      const cartItems = res.data.items || [];
+      setItems(cartItems);
+      setTotalPrice(cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0));
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify({ items: state.items }));
-  }, [state.items]);
+    fetchCart();
+  }, [isAuthenticated]);
 
-  const addToCart = (product, quantity = 1) => {
-    dispatch({
-      type: 'ADD_TO_CART',
-      payload: {
+  const addToCart = async (product, quantity = 1) => {
+    try {
+      if (!isAuthenticated) return;
+      await addItemToCart({
         productId: product.id,
-        name: product.name,
-        price: product.price,
-        pictureUrl: product.pictureUrl,
-        quantity,
-      },
-    });
+        quantity: quantity
+      });
+      await fetchCart();
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
   };
 
-  const updateQuantity = (productId, quantity) => {
-    dispatch({ type: 'UPDATE_QUANTITY', payload: { productId, quantity } });
+  const updateQuantity = async (productId, quantity) => {
+    try {
+      if (!isAuthenticated) return;
+      await updateCartItemQuantity(productId, quantity);
+      await fetchCart();
+    } catch (error) {
+      console.error("Error updating cart item quantity:", error);
+    }
   };
 
-  const removeFromCart = (productId) => {
-    dispatch({ type: 'REMOVE_FROM_CART', payload: { productId } });
+  const removeFromCart = async (productId) => {
+    try {
+      if (!isAuthenticated) return;
+      await removeCartItem(productId);
+      await fetchCart();
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+    }
   };
 
-  const clearCart = () => {
-    dispatch({ type: 'CLEAR_CART' });
+  const clearCart = async () => {
+    try {
+      if (!isAuthenticated) return;
+      await clearCartApi();
+      await fetchCart();
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
   };
 
   return (
     <CartContext.Provider
       value={{
-        items: state.items,
-        totalPrice: state.totalPrice,
+        items,
+        totalPrice,
         addToCart,
         updateQuantity,
         removeFromCart,

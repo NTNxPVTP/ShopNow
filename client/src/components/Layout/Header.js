@@ -28,10 +28,7 @@ const Header = () => {
             </Nav.Link>
             {isAuthenticated && user?.role === 'CUSTOMER' && (
               <>
-                <Nav.Link as={Link} to="/cart">
-                  Giỏ hàng{' '}
-                  {items.length > 0 && <Badge bg="warning">{items.length}</Badge>}
-                </Nav.Link>
+
                 <Nav.Link as={Link} to="/orders">
                   Đơn hàng
                 </Nav.Link>
@@ -56,9 +53,16 @@ const Header = () => {
           <Nav>
             {isAuthenticated ? (
               <>
-                <Navbar.Text className="me-2">
+                <Navbar.Text className="me-3">
                   {user?.email} ({user?.role})
                 </Navbar.Text>
+                {user?.role === 'CUSTOMER' && (
+                  <Nav.Link as={Link} to="/cart" className="me-2">
+                    🛒 Giỏ hàng{' '}
+                    {items.length > 0 && <Badge bg="warning" text="dark">{items.length}</Badge>}
+                  </Nav.Link>
+                )}
+                <Nav.Link as={Link} to="/profile">Hồ sơ</Nav.Link>
                 <Nav.Link onClick={handleLogout}>Đăng xuất</Nav.Link>
               </>
             ) : (

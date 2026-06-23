@@ -1,0 +1,282 @@
+services:
+  # ----------------------------------------
+  # Infrastructure Services
+  # ----------------------------------------
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: shopnow-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - shopnow-network
+
+  eureka-server:
+    build:
+      context: .
+      dockerfile: eureka-server/Dockerfile
+    container_name: shopnow-eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - shopnow-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: shopnow-api-gateway
+    depends_on:
+      - eureka-server
+    environment:
+      - EUREKA_HOST=shopnow-eureka-server
+    ports:
+      - "8080:8080"
+    networks:
+      - shopnow-network
+
+  shopnow-client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: shopnow-client
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - shopnow-network
+
+  # ----------------------------------------
+  # Databases
+  # ----------------------------------------
+  postgres-auth:
+    image: postgres:15-alpine
+    container_name: shopnow-postgres-auth
+    environment:
+      POSTGRES_USER: shopnow_user
+      POSTGRES_PASSWORD: shopnow_password
+      POSTGRES_DB: shopnow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_auth:/var/lib/postgresql/data
+    networks:
+      - shopnow-network
+
+  postgres-user:
+    image: postgres:15-alpine
+    container_name: shopnow-postgres-user
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: shopnow_user_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - pgdata_user:/var/lib/postgresql/data
+    networks:
+      - shopnow-network
+
+  postgres-order:
+    image: postgres:15-alpine
+    container_name: shopnow-postgres-order
+    environment:
+      POSTGRES_USER: shopnow_order_user
+      POSTGRES_PASSWORD: shopnow_order_password
+      POSTGRES_DB: shopnow_order_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata_order:/var/lib/postgresql/data
+    networks:
+      - shopnow-network
+
+  postgres-product:
+    image: postgres:15-alpine
+    container_name: shopnow-postgres-product
+    environment:
+      POSTGRES_USER: shopnow_product_user
+      POSTGRES_PASSWORD: shopnow_product_password
+      POSTGRES_DB: shopnow_product_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata_product:/var/lib/postgresql/data
+    networks:
+      - shopnow-network
+
+  postgres-cart:
+    image: postgres:15-alpine
+    container_name: shopnow-postgres-cart
+    environment:
+      POSTGRES_USER: shopnow_cart_user
+      POSTGRES_PASSWORD: shopnow_cart_password
+      POSTGRES_DB: shopnow_cart_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata_cart:/var/lib/postgresql/data
+    networks:
+      - shopnow-network
+
+  postgres-payment:
+    image: postgres:15-alpine
+    container_name: shopnow-postgres-payment
+    environment:
+      POSTGRES_USER: shopnow_payment_user
+      POSTGRES_PASSWORD: shopnow_payment_password
+      POSTGRES_DB: shopnow_payment_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - pgdata_payment:/var/lib/postgresql/data
+    networks:
+      - shopnow-network
+
+  # ----------------------------------------
+  # Microservices
+  # ----------------------------------------
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    container_name: shopnow-auth-service
+    depends_on:
+      - postgres-auth
+      - eureka-server
+    environment:
+      - DB_URL=jdbc:postgresql://postgres-auth:5432/shopnow_db
+      - DB_USERNAME=shopnow_user
+      - DB_PASSWORD=shopnow_password
+      - JWT_SECRET_KEY=9a4f2c8d3b7a1e6f45c8a0b3f267d8b1d4e6f3c8a9d2b5f8e3a9c8b5f6v8a3d9
+      - GG_OAUTH2ID_CLIENT=dummy_client
+      - GG_OAUTH2ID_SECRET=dummy_secret
+      - GIT_OAUTH2ID_CLIENT=dummy_client
+      - GIT_OAUTH2ID_SECRET=dummy_secret
+      - EUREKA_HOST=shopnow-eureka-server
+    expose:
+      - "8085"
+    networks:
+      - shopnow-network
+
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    container_name: shopnow-user-service
+    depends_on:
+      - postgres-user
+      - eureka-server
+    environment:
+      - DB_URL=jdbc:postgresql://postgres-user:5432/shopnow_user_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - APP_AUTH_URL=http://shopnow-auth-service:8085
+      - EUREKA_HOST=shopnow-eureka-server
+    expose:
+      - "8086"
+    networks:
+      - shopnow-network
+
+  product-service:
+    build:
+      context: .
+      dockerfile: product-service/Dockerfile
+    container_name: shopnow-product-service
+    depends_on:
+      - postgres-product
+      - eureka-server
+    environment:
+      - DB_URL=jdbc:postgresql://postgres-product:5432/shopnow_product_db
+      - DB_USERNAME=shopnow_product_user
+      - DB_PASSWORD=shopnow_product_password
+      - JWT_SECRET_KEY=9a4f2c8d3b7a1e6f45c8a0b3f267d8b1d4e6f3c8a9d2b5f8e3a9c8b5f6v8a3d9
+      - EUREKA_HOST=shopnow-eureka-server
+    expose:
+      - "8082"
+    networks:
+      - shopnow-network
+
+  cart-service:
+    build:
+      context: .
+      dockerfile: cart-service/Dockerfile
+    container_name: shopnow-cart-service
+    depends_on:
+      - postgres-cart
+      - product-service
+      - eureka-server
+    environment:
+      - DB_URL=jdbc:postgresql://postgres-cart:5432/shopnow_cart_db
+      - DB_USERNAME=shopnow_cart_user
+      - DB_PASSWORD=shopnow_cart_password
+      - JWT_SECRET_KEY=9a4f2c8d3b7a1e6f45c8a0b3f267d8b1d4e6f3c8a9d2b5f8e3a9c8b5f6v8a3d9
+      - APP_PRODUCT_URL=http://shopnow-product:8082
+      - SPRING_RABBITMQ_HOST=shopnow-rabbitmq
+      - EUREKA_HOST=shopnow-eureka-server
+    expose:
+      - "8083"
+    networks:
+      - shopnow-network
+
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    container_name: shopnow-order-service
+    depends_on:
+      - postgres-order
+      - product-service
+      - rabbitmq
+      - eureka-server
+    environment:
+      - DB_URL=jdbc:postgresql://postgres-order:5432/shopnow_order_db
+      - DB_USERNAME=shopnow_order_user
+      - DB_PASSWORD=shopnow_order_password
+      - JWT_SECRET_KEY=9a4f2c8d3b7a1e6f45c8a0b3f267d8b1d4e6f3c8a9d2b5f8e3a9c8b5f6v8a3d9
+      - APP_PRODUCT_URL=http://shopnow-product:8082
+      - SPRING_RABBITMQ_HOST=shopnow-rabbitmq
+      - EUREKA_HOST=shopnow-eureka-server
+    expose:
+      - "8081"
+    networks:
+      - shopnow-network
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: payment-service/Dockerfile
+    container_name: shopnow-payment-service
+    depends_on:
+      - postgres-payment
+      - order-service
+      - rabbitmq
+      - eureka-server
+    environment:
+      - DB_URL=jdbc:postgresql://postgres-payment:5432/shopnow_payment_db
+      - DB_USERNAME=shopnow_payment_user
+      - DB_PASSWORD=shopnow_payment_password
+      - JWT_SECRET_KEY=9a4f2c8d3b7a1e6f45c8a0b3f267d8b1d4e6f3c8a9d2b5f8e3a9c8b5f6v8a3d9
+      - APP_ORDER_URL=http://shopnow-order:8081
+      - SPRING_RABBITMQ_HOST=shopnow-rabbitmq
+      - EUREKA_HOST=shopnow-eureka-server
+    expose:
+      - "8084"
+    networks:
+      - shopnow-network
+
+networks:
+  shopnow-network:
+    driver: bridge
+
+volumes:
+  pgdata_auth:
+  pgdata_user:
+  pgdata_order:
+  pgdata_product:
+  pgdata_cart:
+  pgdata_payment:
