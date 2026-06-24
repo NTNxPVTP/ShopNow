@@ -98,4 +98,6 @@ public interface ProductRepository {
      * @return the matching products (possibly empty, never {@code null})
      */
     List<Product> search(ProductQuery query);
+
+    List<Product> findByShopId(UUID shopId);
 }

@@ -21,6 +21,8 @@ import ProductFormPage from './pages/Seller/ProductFormPage';
 import SellerSubOrdersPage from './pages/Seller/SellerSubOrdersPage';
 import CategoryManagementPage from './pages/Admin/CategoryManagementPage';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
+import ShopManagementPage from './pages/Seller/ShopManagementPage';
+import ShopDetailPage from './pages/Seller/ShopDetailPage';
 
 function App() {
   return (
@@ -45,6 +47,8 @@ function App() {
               <RoleRoute exact path="/orders/:id" roles={['CUSTOMER']} component={OrderDetailPage} />
 
               {/* Seller */}
+              <RoleRoute exact path="/seller/shops" roles={['SELLER']} component={ShopManagementPage} />
+              <RoleRoute exact path="/seller/shops/:id" roles={['SELLER']} component={ShopDetailPage} />
               <RoleRoute exact path="/seller/products" roles={['SELLER']} component={SellerProductsPage} />
               <RoleRoute exact path="/seller/products/new" roles={['SELLER']} component={ProductFormPage} />
               <RoleRoute exact path="/seller/products/:id/edit" roles={['SELLER']} component={ProductFormPage} />

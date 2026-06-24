@@ -36,6 +36,9 @@ const Header = () => {
             )}
             {isAuthenticated && user?.role === 'SELLER' && (
               <>
+                <Nav.Link as={Link} to="/seller/shops">
+                  Quản lý Shop
+                </Nav.Link>
                 <Nav.Link as={Link} to="/seller/products">
                   Quản lý SP
                 </Nav.Link>

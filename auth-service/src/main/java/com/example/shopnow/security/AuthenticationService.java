@@ -58,7 +58,7 @@ public class AuthenticationService {
                 .role(userRole)
                 .build();
         
-        userRepository.save(user);
+        user = userRepository.save(user);
 
         java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
         extraClaims.put("userId", user.getId().toString());

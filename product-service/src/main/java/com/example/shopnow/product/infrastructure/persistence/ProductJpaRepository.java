@@ -42,6 +42,9 @@ public interface ProductJpaRepository extends JpaRepository<Product, UUID>, JpaS
 
     Optional<Product> findByIdAndIsDeletedFalse(UUID id);
 
+    @EntityGraph(attributePaths = { "categories" })
+    List<Product> findByShopIdAndIsDeletedFalse(UUID shopId);
+
     Page<Product> findWithPageReponseBy(Pageable pageable);
 
     @EntityGraph(attributePaths = { "shop" })

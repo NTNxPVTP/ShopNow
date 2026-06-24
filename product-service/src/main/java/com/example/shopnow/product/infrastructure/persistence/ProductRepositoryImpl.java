@@ -71,4 +71,9 @@ class ProductRepositoryImpl implements ProductRepository {
     public List<Product> search(ProductQuery query) {
         return jpa.findAll(ProductSpecification.from(query));
     }
+
+    @Override
+    public List<Product> findByShopId(UUID shopId) {
+        return jpa.findByShopIdAndIsDeletedFalse(shopId);
+    }
 }

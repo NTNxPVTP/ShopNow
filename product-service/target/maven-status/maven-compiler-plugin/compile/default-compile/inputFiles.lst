@@ -1,3 +1,4 @@
+D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\config\OpenApiConfig.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\config\SecurityConfig.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\DatabaseSeeder.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\exception\DomainException.java
@@ -20,6 +21,9 @@ D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\appl
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\CreateShopUseCase.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\DecreaseStockUseCase.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\DeleteProductUseCase.java
+D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\GetMyShopsUseCase.java
+D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\GetShopProductsUseCase.java
+D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\GetShopUseCase.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\ListProductsUseCase.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\UpdateProductUseCase.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\ViewProductDetailUseCase.java
