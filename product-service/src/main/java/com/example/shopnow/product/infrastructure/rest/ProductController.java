@@ -7,10 +7,8 @@ import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import com.example.shopnow.user.api.AuthUser;
 import org.springframework.web.bind.annotation.*;
-import com.example.shopnow.product.application.dto.CreateProductRequest;
 import com.example.shopnow.product.application.dto.ProductDetailResponse;
 import com.example.shopnow.product.application.dto.UpdateProductRequest;
-import com.example.shopnow.product.application.usecases.CreateProductUseCase;
 import com.example.shopnow.product.application.usecases.DeleteProductUseCase;
 import com.example.shopnow.product.application.usecases.ListProductsUseCase;
 import com.example.shopnow.product.application.usecases.UpdateProductUseCase;
@@ -25,7 +23,6 @@ import jakarta.validation.Valid;
 @RequiredArgsConstructor
 public class ProductController {
     private final ViewProductDetailUseCase viewProductDetailUseCase;
-    private final CreateProductUseCase createProductUseCase;
     private final DeleteProductUseCase deleteProductUseCase;
     private final UpdateProductUseCase updateProductUseCase;
     private final ListProductsUseCase listProductsUseCase;
@@ -36,13 +33,6 @@ public class ProductController {
 
     }
 
-    @PostMapping
-    public ResponseEntity<ProductDetailResponse> createProduct(
-            @RequestBody @Valid CreateProductRequest request,
-            @AuthUser AuthenticatedUser owner) {
-        ProductDetailResponse detail = createProductUseCase.execute(request, owner);
-        return ResponseEntity.ok(detail);
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable UUID id, @AuthUser AuthenticatedUser owner) {

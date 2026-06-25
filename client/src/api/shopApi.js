@@ -15,3 +15,7 @@ export const getShopDetails = (id) => {
 export const getShopProducts = (id) => {
   return axiosClient.get(`/api/shops/${id}/products`);
 };
+
+export const createProduct = (shopId, data) => {
+  return axiosClient.post(`/api/shops/${shopId}/products`, data);
+};

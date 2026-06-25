@@ -10,6 +10,5 @@ public record CreateProductRequest(
         String pictureUrl,
         @NotNull(message = "Quantity must not be null") Integer quantity,
         @NotNull(message = "Price must not be null") BigDecimal price,
-        @NotNull(message = "Shop id must not be null") UUID shopId,
         Set<UUID> categoryIds) {
 }

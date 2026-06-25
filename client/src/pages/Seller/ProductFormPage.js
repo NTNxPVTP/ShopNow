@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { useParams, useHistory } from 'react-router-dom';
-import { createProduct, updateProduct, getProductById } from '../../api/productApi';
+import { updateProduct, getProductById } from '../../api/productApi';
+import { createProduct } from '../../api/shopApi';
 import { getCategories } from '../../api/categoryApi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 const ProductFormPage = () => {
-  const { id } = useParams();
+  const { id, shopId: paramShopId } = useParams();
   const history = useHistory();
   const isEdit = !!id;
 
@@ -14,7 +15,6 @@ const ProductFormPage = () => {
   const [pictureUrl, setPictureUrl] = useState('');
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
-  const [shopId, setShopId] = useState('');
   const [categoryIds, setCategoryIds] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,7 +34,6 @@ const ProductFormPage = () => {
           setPictureUrl(p.pictureUrl || '');
           setQuantity(p.quantity?.toString() || '');
           setPrice(p.price?.toString() || '');
-          setShopId(p.shopId || '');
           setCategoryIds(p.categoryIds ? Array.from(p.categoryIds) : []);
         })
         .catch(() => setError('Không thể tải thông tin sản phẩm.'))
@@ -62,17 +61,16 @@ const ProductFormPage = () => {
           price: price ? parseFloat(price) : undefined,
         });
       } else {
-        if (!shopId) {
-          setError('Shop ID là bắt buộc. Vui lòng nhập Shop ID của bạn.');
+        if (!paramShopId) {
+          setError('Shop ID bị thiếu trên URL.');
           setLoading(false);
           return;
         }
-        await createProduct({
+        await createProduct(paramShopId, {
           name,
           pictureUrl: pictureUrl || null,
           quantity: parseInt(quantity),
           price: parseFloat(price),
-          shopId,
           categoryIds: categoryIds.length > 0 ? categoryIds : null,
         });
       }
@@ -138,18 +136,7 @@ const ProductFormPage = () => {
           />
         </Form.Group>
 
-        {!isEdit && (
-          <Form.Group className="mb-3">
-            <Form.Label>Shop ID *</Form.Label>
-            <Form.Control
-              type="text"
-              value={shopId}
-              onChange={(e) => setShopId(e.target.value)}
-              required
-              placeholder="UUID của shop"
-            />
-          </Form.Group>
-        )}
+
 
         <Form.Group className="mb-3">
           <Form.Label>Danh mục</Form.Label>

@@ -95,7 +95,7 @@ const ShopDetailPage = () => {
         <Button 
           variant="outline-primary" 
           className="rounded-pill px-3 shadow-sm"
-          onClick={() => history.push('/seller/products/new')} // Có thể redirect đến trang tạo sản phẩm truyền theo shopId
+          onClick={() => history.push(`/seller/shops/${shop.id}/products/new`)}
         >
           + Thêm sản phẩm mới
         </Button>
@@ -109,7 +109,7 @@ const ShopDetailPage = () => {
               <Button 
                 variant="primary" 
                 className="mt-3 rounded-pill"
-                onClick={() => history.push('/seller/products/new')}
+                onClick={() => history.push(`/seller/shops/${shop.id}/products/new`)}
               >
                 Thêm sản phẩm đầu tiên
               </Button>

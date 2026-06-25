@@ -33,6 +33,7 @@ public class ShopController {
     private final GetMyShopsUseCase getMyShopsUseCase;
     private final GetShopUseCase getShopUseCase;
     private final GetShopProductsUseCase getShopProductsUseCase;
+    private final com.example.shopnow.product.application.usecases.CreateProductUseCase createProductUseCase;
 
     @PostMapping
     public ResponseEntity<ShopDTO> createShop(
@@ -54,5 +55,13 @@ public class ShopController {
     @GetMapping("/{id}/products")
     public ResponseEntity<List<ProductDetailResponse>> getShopProducts(@PathVariable UUID id) {
         return ResponseEntity.ok(getShopProductsUseCase.execute(id));
+    }
+
+    @PostMapping("/{id}/products")
+    public ResponseEntity<ProductDetailResponse> createProduct(
+            @PathVariable UUID id,
+            @Valid @RequestBody com.example.shopnow.product.application.dto.CreateProductRequest request,
+            @AuthUser AuthenticatedUser owner) {
+        return ResponseEntity.ok(createProductUseCase.execute(request, id, owner));
     }
 }

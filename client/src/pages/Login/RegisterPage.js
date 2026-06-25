@@ -23,9 +23,9 @@ const RegisterPage = () => {
     try {
       // Gọi API đăng ký
       await register({ name, email, password, role });
-      
+
       setSuccess('Đăng ký thành công! Đang tự động đăng nhập...');
-      
+
       // Đăng nhập tự động ngay sau khi đăng ký thành công
       const userData = await login(email, password);
       // Redirect theo role
@@ -43,6 +43,12 @@ const RegisterPage = () => {
       }, 1000);
 
     } catch (err) {
+      console.error('❌ Registration Error:', {
+        message: err.message,
+        responseData: err.response?.data,
+        status: err.response?.status,
+        fullError: err // Giữ lại full object phòng trường hợp lỗi crash mạng (Network Error)
+      });
       setError(
         err.response?.data?.message || 'Đăng ký thất bại. Email có thể đã tồn tại.'
       );

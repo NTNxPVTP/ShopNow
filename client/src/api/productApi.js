@@ -8,9 +8,6 @@ export const getProductById = (id) => {
   return axiosClient.get(`/api/products/${id}`);
 };
 
-export const createProduct = (data) => {
-  return axiosClient.post('/api/products', data);
-};
 
 export const updateProduct = (id, data) => {
   return axiosClient.patch(`/api/products/${id}`, data);

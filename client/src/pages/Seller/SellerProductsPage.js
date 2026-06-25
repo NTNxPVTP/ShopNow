@@ -54,9 +54,6 @@ const SellerProductsPage = () => {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Quản lý sản phẩm</h2>
-        <Button variant="success" onClick={() => history.push('/seller/products/new')}>
-          + Thêm sản phẩm
-        </Button>
       </div>
 
       {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}

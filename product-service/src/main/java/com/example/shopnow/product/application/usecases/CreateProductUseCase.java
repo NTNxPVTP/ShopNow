@@ -44,9 +44,9 @@ public class CreateProductUseCase {
     private final ProductMapper productMapper;
 
     @Transactional(rollbackFor = Exception.class)
-    public ProductDetailResponse execute(CreateProductRequest request, AuthenticatedUser owner) {
+    public ProductDetailResponse execute(CreateProductRequest request, UUID shopId, AuthenticatedUser owner) {
         Product product = productMapper.fromCreateRequestToProduct(request);
-        Shop shop = shopRepository.findById(request.shopId())
+        Shop shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new DomainException(ErrorCode.SHOP_NOT_FOUND));
 
         UUID shopOwnerId = owner.getId();

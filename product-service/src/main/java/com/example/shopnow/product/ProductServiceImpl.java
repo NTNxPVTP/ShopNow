@@ -56,31 +56,7 @@ public class ProductServiceImpl implements ProductApi {
         return productMapper.toDto(product);
     }
 
-    // has not have shop owner, category,... yet
-    @Transactional
-    public ProductDetailResponse createProduct(CreateProductRequest request, AuthenticatedUser owner) {
-        Product product = productMapper.fromCreateRequestToProduct(request);
-        Shop shop = shopRepository.findById(request.shopId())
-                .orElseThrow(() -> new DomainException(ErrorCode.SHOP_NOT_FOUND));
 
-        UUID shopOwnerId = owner.getId();
-        if (shopOwnerId == null || !shopOwnerId.equals(shop.getOwnerId())) {
-            throw new DomainException(ErrorCode.PRODUCT_ACCESS_DENIED);
-        }
-
-        Set<Category> categories = resolveCategories(request.categoryIds());
-
-        product.setShop(shop);
-        product.setStatus(ProductStatus.ACTIVE);
-
-        if (!categories.isEmpty()) {
-            product.setCategories(categories);
-        }
-
-        product = productRepository.save(product);
-        ProductDetailResponse detail = productMapper.toDto(product);
-        return detail;
-    }
 
     // TODO:
     // business logic: if product is in order, set status = INACTIVE, else delete
