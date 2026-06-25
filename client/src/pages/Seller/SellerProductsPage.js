@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Alert } from 'react-bootstrap';
 import { Link, useHistory } from 'react-router-dom';
-import { getProducts, deleteProduct } from '../../api/productApi';
+import { deleteProduct } from '../../api/productApi';
+import { getMyShops, getShopProducts } from '../../api/shopApi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Pagination from '../../components/Pagination';
 
 const SellerProductsPage = () => {
+  const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [pageInfo, setPageInfo] = useState({ number: 0, totalPages: 0 });
   const [page, setPage] = useState(1);
@@ -13,24 +15,53 @@ const SellerProductsPage = () => {
   const [error, setError] = useState('');
   const history = useHistory();
 
-  useEffect(() => {
-    fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
-
   const fetchProducts = async () => {
     setLoading(true);
     setError('');
     try {
-      const res = await getProducts({ page, size: 10 });
-      setProducts(res.data.items || []);
-      setPageInfo(res.data.pageInfo || { number: 0, totalPages: 0 });
+      const shopsRes = await getMyShops();
+      const shops = shopsRes.data || [];
+
+      const productsPromises = shops.map(async (shop) => {
+        const res = await getShopProducts(shop.id);
+        const shopProds = res.data || [];
+        return shopProds.map(p => ({ ...p, shopName: shop.name }));
+      });
+      
+      const productsArrays = await Promise.all(productsPromises);
+      const combinedProducts = productsArrays.flat();
+
+      setAllProducts(combinedProducts);
+      updatePagination(combinedProducts, 1);
+      setPage(1);
     } catch (err) {
       setError('Không thể tải danh sách sản phẩm.');
     } finally {
       setLoading(false);
     }
   };
+
+  const updatePagination = (dataList, currentPage) => {
+    const size = 10;
+    const totalElements = dataList.length;
+    const totalPages = Math.ceil(totalElements / size) || 1;
+    const paginatedProducts = dataList.slice((currentPage - 1) * size, currentPage * size);
+    
+    setProducts(paginatedProducts);
+    setPageInfo({ number: currentPage - 1, totalPages, totalElements });
+  };
+
+  useEffect(() => {
+    if (allProducts.length > 0) {
+      updatePagination(allProducts, page);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+  useEffect(() => {
+    fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
@@ -68,6 +99,7 @@ const SellerProductsPage = () => {
           <thead>
             <tr>
               <th>Tên</th>
+              <th>Cửa hàng</th>
               <th>Giá</th>
               <th>Tồn kho</th>
               <th>Trạng thái</th>
@@ -78,6 +110,7 @@ const SellerProductsPage = () => {
             {products.map((p) => (
               <tr key={p.id}>
                 <td>{p.name}</td>
+                <td>{p.shopName}</td>
                 <td>{formatPrice(p.price)}</td>
                 <td>{p.quantity}</td>
                 <td>{p.status}</td>

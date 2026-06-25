@@ -48,6 +48,7 @@ public class ProductServiceImpl implements ProductApi {
     // decreaseProducts now delegates here so the stock-decrease logic lives in
     // one place (task 8.3); the ProductApi contract stays unchanged.
     private final DecreaseStockUseCase decreaseStockUseCase;
+    private final com.example.shopnow.product.application.usecases.GetProductsInfoUseCase getProductsInfoUseCase;
 
     public ProductDetailResponse viewDetailsOfProduct(UUID id) {
 
@@ -115,6 +116,11 @@ public class ProductServiceImpl implements ProductApi {
     @Transactional
     public List<ProductInfoForOrder> decreaseProducts(List<OrderLineRequest> lines) {
         return decreaseStockUseCase.execute(lines);
+    }
+
+    @Override
+    public List<ProductInfoForOrder> getProductsInfo(List<OrderLineRequest> lines) {
+        return getProductsInfoUseCase.execute(lines);
     }
 
     private Set<Category> resolveCategories(Set<UUID> categoryIds) {

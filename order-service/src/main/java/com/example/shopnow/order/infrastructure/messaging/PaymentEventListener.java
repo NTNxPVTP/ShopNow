@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -18,6 +19,7 @@ public class PaymentEventListener {
     private final OrderRepository orderRepository;
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
+    @Transactional
     public void handlePaymentSuccess(PaymentSuccessEvent event) {
         log.info("Received PaymentSuccessEvent for order: {}", event.getOrderId());
         if ("SUCCESS".equals(event.getStatus())) {

@@ -131,11 +131,11 @@ const CartPage = () => {
                   {item.pictureUrl && (
                     <img
                       src={item.pictureUrl}
-                      alt={item.name}
+                      alt={item.productName}
                       style={{ width: '50px', height: '50px', objectFit: 'cover', marginRight: '10px' }}
                     />
                   )}
-                  {item.name}
+                  {item.productName}
                 </div>
               </td>
               <td>{formatPrice(item.price)}</td>

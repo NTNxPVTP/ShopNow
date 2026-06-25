@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ProductApi {
     List<ProductInfoForOrder> decreaseProducts(List<OrderLineRequest> lines);
+    List<ProductInfoForOrder> getProductsInfo(List<OrderLineRequest> lines);
 }

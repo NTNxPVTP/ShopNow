@@ -41,6 +41,7 @@ public class CreateOrderUseCase {
     private final OrderRepository orderRepository; // driven port (intra-module)
     private final ProductApi productApi;           // driven port (cross-module)
     private final OrderMapper orderMapper;
+    private final com.example.shopnow.order.infrastructure.messaging.OrderEventPublisher orderEventPublisher;
 
     @Transactional(rollbackFor = Exception.class)
     public OrderDTO execute(CreateOrderRequest request, AuthenticatedUser buyer) {
@@ -50,7 +51,7 @@ public class CreateOrderUseCase {
         List<OrderLineRequest> stockRequests = itemRequests.stream()
                 .map(item -> new OrderLineRequest(item.productId(), item.quantity()))
                 .toList();
-        List<ProductInfoForOrder> products = productApi.decreaseProducts(stockRequests);
+        List<ProductInfoForOrder> products = productApi.getProductsInfo(stockRequests);
 
         // (b) Resolve each requested item into a domain OrderLine (price, shopId,
         // shopOwnerId and productName resolved from the product info).
@@ -72,6 +73,12 @@ public class CreateOrderUseCase {
 
         // (d) Persist through the repository port and (e) map to the response DTO.
         Order saved = orderRepository.save(order);
+        
+        // (e) Publish event to decrease stock asynchronously
+        orderEventPublisher.publishOrderCreatedEvent(
+            new com.example.shopnow.order.infrastructure.messaging.OrderCreatedEvent(saved.getId(), stockRequests)
+        );
+        
         return orderMapper.toDto(saved);
     }
 }

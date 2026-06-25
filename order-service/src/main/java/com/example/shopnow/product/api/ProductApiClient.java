@@ -42,5 +42,26 @@ public class ProductApiClient implements ProductApi {
             throw new RuntimeException("Error from product-service: " + e.getMessage() + " - " + responseString);
         }
     }
+
+    @Override
+    public List<ProductInfoForOrder> getProductsInfo(List<OrderLineRequest> lines) {
+        try {
+            ResponseEntity<List<ProductInfoForOrder>> response = restTemplate.exchange(
+                    productUrl + "/api/internal/products/info",
+                    HttpMethod.POST,
+                    new HttpEntity<>(lines),
+                    new ParameterizedTypeReference<List<ProductInfoForOrder>>() {}
+            );
+            return response.getBody();
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            String responseString = e.getResponseBodyAsString();
+            if (responseString.contains("PRODUCT_002") || responseString.contains("PRODUCT_OUT_OF_STOCK")) {
+                throw new com.example.shopnow.exception.DomainException(com.example.shopnow.exception.ErrorCode.PRODUCT_OUT_OF_STOCK);
+            } else if (responseString.contains("PRODUCT_001") || responseString.contains("PRODUCT_NOT_FOUND")) {
+                throw new com.example.shopnow.exception.DomainException(com.example.shopnow.exception.ErrorCode.PRODUCT_NOT_FOUND);
+            }
+            throw new RuntimeException("Error from product-service: " + e.getMessage() + " - " + responseString);
+        }
+    }
 }
 

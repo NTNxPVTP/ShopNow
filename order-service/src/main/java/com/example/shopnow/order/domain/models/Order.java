@@ -93,6 +93,12 @@ public class Order extends BaseEntity {
             throw new DomainException(ErrorCode.ORDER_INVALID_TRANSITION);
         }
         this.status = target;
+        if (this.subOrders != null) {
+            for (SubOrder subOrder : this.subOrders) {
+                System.out.println("Transitioning sub-order " + subOrder.getId() + " from " + subOrder.getStatus() + " to " + target);
+                subOrder.setStatus(target);
+            }
+        }
     }
 
     public boolean isOwnedBy(UUID viewerId) {

@@ -22,6 +22,7 @@ D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\appl
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\DecreaseStockUseCase.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\DeleteProductUseCase.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\GetMyShopsUseCase.java
+D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\GetProductsInfoUseCase.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\GetShopProductsUseCase.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\GetShopUseCase.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\application\usecases\ListProductsUseCase.java
@@ -33,6 +34,9 @@ D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\doma
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\domain\models\Shop.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\domain\repository\ProductQuery.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\domain\repository\ProductRepository.java
+D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\infrastructure\messaging\OrderCreatedEvent.java
+D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\infrastructure\messaging\OrderCreatedEventListener.java
+D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\infrastructure\messaging\RabbitMQConfig.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\infrastructure\persistence\CategoryRepository.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\infrastructure\persistence\ProductJpaRepository.java
 D:\Github\ShopNow\product-service\src\main\java\com\example\shopnow\product\infrastructure\persistence\ProductRepositoryImpl.java

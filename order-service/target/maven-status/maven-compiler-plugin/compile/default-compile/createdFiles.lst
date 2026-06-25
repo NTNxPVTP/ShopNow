@@ -21,6 +21,7 @@ com\example\shopnow\order\infrastructure\persistence\SubOrderSpecification.class
 com\example\shopnow\order\application\usecases\ListOrdersUseCase.class
 com\example\shopnow\user\api\AuthUser.class
 com\example\shopnow\user\domain\repository\UserRepository.class
+com\example\shopnow\order\infrastructure\messaging\OrderCreatedEvent.class
 com\example\shopnow\order\rest\dto\OrderDetailDTO.class
 com\example\shopnow\order\mapper\SubOrderMapper.class
 com\example\shopnow\order\domain\models\OrderDetail$OrderDetailBuilder.class
@@ -47,6 +48,7 @@ com\example\shopnow\order\infrastructure\rest\InternalOrderController.class
 com\example\shopnow\order\domain\repository\OrderRepository.class
 com\example\shopnow\order\mapper\SubOrderMapperImpl.class
 com\example\shopnow\order\domain\repository\OrderQuery.class
+com\example\shopnow\order\infrastructure\messaging\OrderEventPublisher.class
 com\example\shopnow\order\infrastructure\persistence\OrderJpaRepository.class
 com\example\shopnow\ShopNowOrderApplication.class
 com\example\shopnow\user\api\WebConfig.class
@@ -59,7 +61,9 @@ com\example\shopnow\config\SecurityConfig.class
 com\example\shopnow\order\domain\models\SubOrder.class
 com\example\shopnow\DatabaseSeeder.class
 com\example\shopnow\order\api\dto\InternalOrderInfo.class
+com\example\shopnow\product\api\ProductApiClient$2.class
 com\example\shopnow\order\mapper\OrderMapper.class
+com\example\shopnow\config\OpenApiConfig.class
 com\example\shopnow\order\mapper\OrderDetailMapperImpl.class
 com\example\shopnow\product\api\dto\OrderLineRequest.class
 com\example\shopnow\order\domain\models\SubOrder$SubOrderBuilder.class

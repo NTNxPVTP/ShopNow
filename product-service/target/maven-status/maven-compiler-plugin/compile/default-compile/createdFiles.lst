@@ -9,11 +9,13 @@ com\example\shopnow\product\application\usecases\CreateShopUseCase.class
 com\example\shopnow\product\application\usecases\UpdateProductUseCase.class
 com\example\shopnow\exception\DomainException.class
 com\example\shopnow\shared\test\package-info.class
+com\example\shopnow\product\infrastructure\messaging\OrderCreatedEvent.class
 com\example\shopnow\product\infrastructure\rest\InternalProductController.class
 com\example\shopnow\product\application\dto\CreateShopRequest.class
 com\example\shopnow\product\application\dto\CategoryResponse.class
 com\example\shopnow\product\application\dto\ShopDTO.class
 com\example\shopnow\product\application\usecases\GetShopProductsUseCase.class
+com\example\shopnow\product\infrastructure\messaging\RabbitMQConfig.class
 com\example\shopnow\product\infrastructure\persistence\ProductSpecification.class
 com\example\shopnow\shared\PageInfo.class
 com\example\shopnow\product\domain\models\ProductStatus.class
@@ -51,11 +53,13 @@ com\example\shopnow\product\ProductServiceImpl.class
 com\example\shopnow\product\api\dto\ProductInfoForOrder.class
 com\example\shopnow\config\SecurityConfig.class
 com\example\shopnow\DatabaseSeeder.class
+com\example\shopnow\product\infrastructure\messaging\OrderCreatedEventListener.class
 com\example\shopnow\product\domain\repository\ProductRepository.class
 com\example\shopnow\config\OpenApiConfig.class
 com\example\shopnow\product\api\dto\OrderLineRequest.class
 com\example\shopnow\product\application\usecases\DecreaseStockUseCase.class
 com\example\shopnow\ShopNowProductApplication.class
 com\example\shopnow\product\domain\models\Shop.class
+com\example\shopnow\product\application\usecases\GetProductsInfoUseCase.class
 com\example\shopnow\product\application\usecases\GetShopUseCase.class
 com\example\shopnow\shared\GenericMapper.class

@@ -15,6 +15,9 @@ public class RabbitMQConfig {
     public static final String QUEUE_NAME = "order.payment.queue";
     public static final String EXCHANGE_NAME = "payment.exchange";
     public static final String ROUTING_KEY = "payment.success";
+    
+    public static final String ORDER_EXCHANGE = "order.exchange";
+    public static final String ORDER_CREATED_ROUTING_KEY = "order.created";
 
     @Bean
     public Queue paymentQueue() {
@@ -24,6 +27,11 @@ public class RabbitMQConfig {
     @Bean
     public TopicExchange paymentExchange() {
         return new TopicExchange(EXCHANGE_NAME);
+    }
+
+    @Bean
+    public TopicExchange orderExchange() {
+        return new TopicExchange(ORDER_EXCHANGE);
     }
 
     @Bean

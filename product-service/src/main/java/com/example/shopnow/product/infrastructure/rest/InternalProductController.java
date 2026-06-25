@@ -19,4 +19,9 @@ public class InternalProductController {
     public ResponseEntity<List<ProductInfoForOrder>> decreaseProducts(@RequestBody List<OrderLineRequest> lines) {
         return ResponseEntity.ok(productApi.decreaseProducts(lines));
     }
+
+    @PostMapping("/info")
+    public ResponseEntity<List<ProductInfoForOrder>> getProductsInfo(@RequestBody List<OrderLineRequest> lines) {
+        return ResponseEntity.ok(productApi.getProductsInfo(lines));
+    }
 }
